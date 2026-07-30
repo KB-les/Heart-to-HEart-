@@ -20,11 +20,15 @@ import { useSound } from "@/context/SoundContext";
 interface HeartOrActionScreenProps {
   onContinue: () => void;
   onScenarioCompleted?: (id: string) => void;
+  player1Name?: string;
+  player2Name?: string;
 }
 
 export const HeartOrActionScreen: React.FC<HeartOrActionScreenProps> = ({
   onContinue,
   onScenarioCompleted,
+  player1Name = "Player 1",
+  player2Name = "Player 2",
 }) => {
   const { playSound } = useSound();
 
@@ -194,7 +198,7 @@ export const HeartOrActionScreen: React.FC<HeartOrActionScreenProps> = ({
               <div className="p-6 rounded-3xl bg-forest-800 text-cream-50 space-y-4 shadow-lg">
                 <h4 className="font-serif font-bold text-lg text-gold-300 flex items-center gap-2">
                   <HelpCircle className="w-5 h-5 text-gold-400" />
-                  <span>Discussion Questions for Karabelo & Yolanda</span>
+                  <span>Discussion Questions for {player1Name} &amp; {player2Name}</span>
                 </h4>
 
                 <div className="space-y-3">

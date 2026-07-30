@@ -56,7 +56,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
         <div className="p-5 rounded-2xl bg-gradient-to-r from-cream-100/90 to-white/90 border border-cream-300 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-forest-700">
-              Player 1 (Default: Karabelo)
+              Player 1
             </span>
             <span className="text-xs text-forest-500 font-medium">Partner A</span>
           </div>
@@ -73,7 +73,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
               type="text"
               value={p1}
               onChange={(e) => setP1(e.target.value)}
-              placeholder="Enter Player 1 Name"
+              placeholder="e.g. Karabelo"
               className="flex-1 px-4 py-3 rounded-2xl bg-white border border-cream-300 text-forest-900 font-medium focus:outline-none focus:ring-2 focus:ring-forest-700/50 shadow-inner text-base"
             />
           </div>
@@ -102,7 +102,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
         <div className="p-5 rounded-2xl bg-gradient-to-r from-cream-100/90 to-white/90 border border-cream-300 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-forest-700">
-              Player 2 (Default: Yolanda)
+              Player 2
             </span>
             <span className="text-xs text-forest-500 font-medium">Partner B</span>
           </div>
@@ -116,7 +116,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
               type="text"
               value={p2}
               onChange={(e) => setP2(e.target.value)}
-              placeholder="Enter Player 2 Name"
+              placeholder="e.g. Yolanda"
               className="flex-1 px-4 py-3 rounded-2xl bg-white border border-cream-300 text-forest-900 font-medium focus:outline-none focus:ring-2 focus:ring-forest-700/50 shadow-inner text-base"
             />
           </div>

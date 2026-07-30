@@ -21,10 +21,14 @@ import { useSound } from "@/context/SoundContext";
 
 interface MainDiscussionScreenProps {
   onContinue: () => void;
+  player1Name?: string;
+  player2Name?: string;
 }
 
 export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
   onContinue,
+  player1Name = "Player 1",
+  player2Name = "Player 2",
 }) => {
   const { playSound } = useSound();
   const [activeTab, setActiveTab] = useState<"james" | "psalm" | "ecclesiastes">("james");
@@ -135,7 +139,7 @@ export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
               <div className="flex items-center justify-between">
                 <h4 className="font-serif font-bold text-xl text-forest-900 flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-gold-600" />
-                  <span>Discussion Cards for Karabelo & Yolanda</span>
+                  <span>Discussion Cards for {player1Name} &amp; {player2Name}</span>
                 </h4>
                 <span className="text-xs font-semibold text-forest-600">
                   Card {activeCardIndex + 1} of {theme.mainDiscussionCards.length}

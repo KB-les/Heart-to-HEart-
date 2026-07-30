@@ -191,7 +191,11 @@ export default function Home() {
               exit="exit"
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
-              <HeartOrActionScreen onContinue={() => handleStepSelect(6)} />
+              <HeartOrActionScreen
+                onContinue={() => handleStepSelect(6)}
+                player1Name={player1Name}
+                player2Name={player2Name}
+              />
             </motion.div>
           )}
 
@@ -205,7 +209,11 @@ export default function Home() {
               exit="exit"
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
-              <MainDiscussionScreen onContinue={() => handleStepSelect(7)} />
+              <MainDiscussionScreen
+                onContinue={() => handleStepSelect(7)}
+                player1Name={player1Name}
+                player2Name={player2Name}
+              />
             </motion.div>
           )}
 
