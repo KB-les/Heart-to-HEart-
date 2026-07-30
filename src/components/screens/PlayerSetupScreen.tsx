@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, ArrowRight, Wifi, Copy, Check, Smartphone, Globe, AlertCircle } from "lucide-react";
+import { Users, ArrowRight, Wifi, Copy, Check, Smartphone, Globe, AlertCircle, Shield } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { usePeer } from "@/context/PeerContext";
@@ -28,9 +28,12 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
   const [inputCode, setInputCode] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
 
-  const { mode: peerMode, status: peerStatus, roomCode, createRoom, joinRoom, leaveRoom, errorMessage } = usePeer();
+  const { mode: peerMode, status: peerStatus, roomCode, createRoom, joinRoom, leaveRoom, errorMessage, myRole, broadcast, lastMessage } = usePeer();
 
   const avatarChoices = ["🌿", "🌸", "🕊️", "⭐", "🌾", "🌊", "☀️", "🦋"];
+
+  const isRemote = peerStatus === "connected";
+  const isHost = !isRemote || myRole === "host";
 
   // Check URL query param for room code (e.g. ?room=LOVE)
   useEffect(() => {
@@ -44,11 +47,47 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
     }
   }, []);
 
+  // Sync names when host types or broadcasts
+  const handleP1Change = (val: string) => {
+    if (!isHost) return;
+    setP1(val);
+    if (isRemote) {
+      broadcast({
+        type: "SYNC_PLAYERS",
+        payload: { p1: val, p2 },
+      });
+    }
+  };
+
+  const handleP2Change = (val: string) => {
+    if (!isHost) return;
+    setP2(val);
+    if (isRemote) {
+      broadcast({
+        type: "SYNC_PLAYERS",
+        payload: { p1, p2: val },
+      });
+    }
+  };
+
+  // Guest receives names automatically from Host
+  useEffect(() => {
+    if (lastMessage && lastMessage.type === "SYNC_PLAYERS" && lastMessage.payload) {
+      if (lastMessage.payload.p1) setP1(lastMessage.payload.p1);
+      if (lastMessage.payload.p2) setP2(lastMessage.payload.p2);
+    }
+  }, [lastMessage]);
+
   const isRemoteReady = worshipMode === "single" || peerStatus === "connected";
 
   const handleContinue = () => {
+    if (!isHost) return; // Only Host can start session!
     if (!isRemoteReady) return;
-    onUpdatePlayers(p1.trim() || "Partner 1", p2.trim() || "Partner 2");
+
+    const finalP1 = p1.trim() || "Karabelo";
+    const finalP2 = p2.trim() || "Candy";
+
+    onUpdatePlayers(finalP1, finalP2);
     onContinue();
   };
 
@@ -124,9 +163,16 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
             animate={{ opacity: 1, height: "auto" }}
             className="p-5 rounded-2xl bg-gradient-to-r from-gold-100/90 via-amber-50 to-gold-100 border-2 border-gold-300 space-y-4 shadow-sm"
           >
-            <div className="flex items-center gap-2 text-forest-900 font-bold text-sm">
-              <Wifi className="w-4 h-4 text-gold-700 animate-pulse" />
-              <span>Remote Worship Connection (No Account Needed)</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-forest-900 font-bold text-sm">
+                <Wifi className="w-4 h-4 text-gold-700 animate-pulse" />
+                <span>Remote Worship Connection</span>
+              </div>
+              {myRole && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-forest-800 text-gold-300">
+                  {myRole === "host" ? "👑 Host (Full Control)" : "👀 Guest"}
+                </span>
+              )}
             </div>
 
             {peerStatus === "disconnected" || peerStatus === "error" ? (
@@ -134,7 +180,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
                 {/* Host button */}
                 <div className="p-4 rounded-xl bg-white border border-gold-300 space-y-2 text-center">
                   <p className="text-xs font-bold text-forest-900">Host New Session</p>
-                  <p className="text-[10px] text-forest-600">Create a room code to send to your partner</p>
+                  <p className="text-[10px] text-forest-600">Create room code (You have full control)</p>
                   <Button variant="gold" size="sm" onClick={createRoom} className="w-full">
                     <span>Create Room Code</span>
                   </Button>
@@ -181,7 +227,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
                 </div>
                 <div className="flex items-center justify-center gap-2 text-xs text-forest-700 font-semibold pt-1">
                   <AlertCircle className="w-4 h-4 text-amber-600 animate-bounce" />
-                  <span>Waiting for partner to join code <strong>{roomCode}</strong> before starting...</span>
+                  <span>Waiting for partner to join room <strong>{roomCode}</strong>...</span>
                 </div>
               </div>
             ) : (
@@ -211,8 +257,13 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
         <div className="p-5 rounded-2xl bg-gradient-to-r from-cream-100/90 to-white/90 border border-cream-300 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-forest-700">
-              Player 1 Name
+              Player 1 Name (Host)
             </span>
+            {!isHost && (
+              <span className="text-[10px] text-forest-600 font-semibold flex items-center gap-1">
+                <Shield className="w-3 h-3 text-gold-600" /> Set by Host
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -222,10 +273,13 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
 
             <input
               type="text"
+              disabled={!isHost}
               value={p1}
-              onChange={(e) => setP1(e.target.value)}
+              onChange={(e) => handleP1Change(e.target.value)}
               placeholder="e.g. Karabelo"
-              className="flex-1 px-4 py-3 rounded-2xl bg-white border border-cream-300 text-forest-900 font-medium focus:outline-none focus:ring-2 focus:ring-forest-700/50 shadow-inner text-base"
+              className={`flex-1 px-4 py-3 rounded-2xl bg-white border border-cream-300 text-forest-900 font-medium focus:outline-none focus:ring-2 focus:ring-forest-700/50 shadow-inner text-base ${
+                !isHost ? "opacity-75 cursor-not-allowed bg-cream-100/50" : ""
+              }`}
             />
           </div>
         </div>
@@ -233,8 +287,13 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
         <div className="p-5 rounded-2xl bg-gradient-to-r from-cream-100/90 to-white/90 border border-cream-300 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-forest-700">
-              Player 2 Name
+              Player 2 Name (Partner)
             </span>
+            {!isHost && (
+              <span className="text-[10px] text-forest-600 font-semibold flex items-center gap-1">
+                <Shield className="w-3 h-3 text-gold-600" /> Set by Host
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -244,10 +303,13 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
 
             <input
               type="text"
+              disabled={!isHost}
               value={p2}
-              onChange={(e) => setP2(e.target.value)}
-              placeholder="e.g. Yolanda"
-              className="flex-1 px-4 py-3 rounded-2xl bg-white border border-cream-300 text-forest-900 font-medium focus:outline-none focus:ring-2 focus:ring-forest-700/50 shadow-inner text-base"
+              onChange={(e) => handleP2Change(e.target.value)}
+              placeholder="e.g. Candy"
+              className={`flex-1 px-4 py-3 rounded-2xl bg-white border border-cream-300 text-forest-900 font-medium focus:outline-none focus:ring-2 focus:ring-forest-700/50 shadow-inner text-base ${
+                !isHost ? "opacity-75 cursor-not-allowed bg-cream-100/50" : ""
+              }`}
             />
           </div>
         </div>
@@ -257,11 +319,17 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
           <Button
             variant="gold"
             size="lg"
-            disabled={!isRemoteReady}
+            disabled={!isHost || !isRemoteReady}
             onClick={handleContinue}
-            className={`w-full sm:w-auto shadow-md ${!isRemoteReady ? "opacity-40 cursor-not-allowed" : ""}`}
+            className={`w-full sm:w-auto shadow-md ${(!isHost || !isRemoteReady) ? "opacity-40 cursor-not-allowed" : ""}`}
           >
-            <span>{isRemoteReady ? "Continue to Icebreaker" : "Waiting for Partner to Join..."}</span>
+            <span>
+              {!isHost
+                ? "Waiting for Host to start the session..."
+                : isRemoteReady
+                ? "Start Session (Continue to Icebreaker)"
+                : "Waiting for Partner to Join..."}
+            </span>
             <ArrowRight className="w-5 h-5" />
           </Button>
         </div>

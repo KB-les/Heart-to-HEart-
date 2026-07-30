@@ -13,6 +13,8 @@ interface JourneyHeaderProps {
   onSelectStep?: (step: number) => void;
 }
 
+import { usePeer } from "@/context/PeerContext";
+
 export const JourneyHeader: React.FC<JourneyHeaderProps> = ({
   currentStep,
   player1Name,
@@ -20,10 +22,20 @@ export const JourneyHeader: React.FC<JourneyHeaderProps> = ({
   onSelectStep,
 }) => {
   const { isMuted, toggleMute, playSound } = useSound();
+  const { myRole, status: peerStatus } = usePeer();
+
+  const isRemote = peerStatus === "connected";
+  const isHost = !isRemote || myRole === "host";
 
   const handleMuteClick = () => {
     playSound("click");
     toggleMute();
+  };
+
+  const handleStepClick = (step: number) => {
+    if (isHost && onSelectStep) {
+      onSelectStep(step);
+    }
   };
 
   return (
@@ -31,12 +43,12 @@ export const JourneyHeader: React.FC<JourneyHeaderProps> = ({
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
         {/* Logo & Brand */}
         <div
-          onClick={() => onSelectStep && onSelectStep(1)}
-          className="flex items-center gap-2.5 cursor-pointer group"
+          onClick={() => handleStepClick(1)}
+          className={`flex items-center gap-2.5 ${isHost ? "cursor-pointer group" : "cursor-default"}`}
         >
           <motion.div
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={isHost ? { scale: 1.1, rotate: 5 } : {}}
+            whileTap={isHost ? { scale: 0.95 } : {}}
             className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-forest-800 via-forest-700 to-emerald-600 flex items-center justify-center text-gold-300 shadow-md border border-gold-400/30"
           >
             <Heart className="w-5 h-5 fill-gold-400/30 text-gold-300" />
@@ -53,7 +65,7 @@ export const JourneyHeader: React.FC<JourneyHeaderProps> = ({
 
         {/* Progress Tree */}
         <div className="flex-1 flex justify-center max-w-md">
-          <ProgressTree currentStep={currentStep} onSelectStep={onSelectStep} />
+          <ProgressTree currentStep={currentStep} onSelectStep={isHost ? handleStepClick : undefined} />
         </div>
 
         {/* Right Section: Players & Sound Toggle */}
@@ -62,6 +74,11 @@ export const JourneyHeader: React.FC<JourneyHeaderProps> = ({
             <span>🌿 {player1Name || "Karabelo"}</span>
             <span className="text-gold-500 font-bold">&</span>
             <span>🌸 {player2Name || "Yolanda"}</span>
+            {isRemote && (
+              <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gold-200 text-forest-900 border border-gold-300">
+                {myRole === "host" ? "👑 Host" : "👀 Guest"}
+              </span>
+            )}
           </div>
 
           <motion.button
