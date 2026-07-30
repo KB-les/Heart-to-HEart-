@@ -30,27 +30,44 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
 
   const { mode: peerMode, status: peerStatus, roomCode, createRoom, joinRoom, leaveRoom, errorMessage, myRole, broadcast, lastMessage } = usePeer();
 
-  const avatarChoices = ["🌿", "🌸", "🕊️", "⭐", "🌾", "🌊", "☀️", "🦋"];
-
   const isRemote = peerStatus === "connected";
   const isHost = !isRemote || myRole === "host";
 
-  // Check URL query param for room code (e.g. ?room=LOVE)
+  // Check URL query params for room code & host-defined player names (e.g. ?room=LOVE&p1=Karabelo&p2=Dudu)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const roomParam = urlParams.get("room");
+      const p1Param = urlParams.get("p1");
+      const p2Param = urlParams.get("p2");
+
       if (roomParam) {
         setWorshipMode("remote");
         setInputCode(roomParam.toUpperCase());
       }
+      if (p1Param) {
+        const decodedP1 = decodeURIComponent(p1Param);
+        setP1(decodedP1);
+      }
+      if (p2Param) {
+        const decodedP2 = decodeURIComponent(p2Param);
+        setP2(decodedP2);
+      }
+
+      if (p1Param || p2Param) {
+        onUpdatePlayers(
+          p1Param ? decodeURIComponent(p1Param) : p1,
+          p2Param ? decodeURIComponent(p2Param) : p2
+        );
+      }
     }
   }, []);
 
-  // Sync names when host types or broadcasts
+  // Sync names when host types
   const handleP1Change = (val: string) => {
     if (!isHost) return;
     setP1(val);
+    onUpdatePlayers(val, p2);
     if (isRemote) {
       broadcast({
         type: "SYNC_PLAYERS",
@@ -62,6 +79,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
   const handleP2Change = (val: string) => {
     if (!isHost) return;
     setP2(val);
+    onUpdatePlayers(p1, val);
     if (isRemote) {
       broadcast({
         type: "SYNC_PLAYERS",
@@ -70,30 +88,56 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
     }
   };
 
+  // Host automatically sends name handshake as soon as partner connects
+  useEffect(() => {
+    if (peerStatus === "connected" && myRole === "host") {
+      const name1 = p1.trim() || "Karabelo";
+      const name2 = p2.trim() || "Dudu";
+      broadcast({
+        type: "SYNC_PLAYERS",
+        payload: { p1: name1, p2: name2 },
+      });
+      onUpdatePlayers(name1, name2);
+    }
+  }, [peerStatus, myRole]);
+
   // Guest receives names automatically from Host
   useEffect(() => {
     if (lastMessage && lastMessage.type === "SYNC_PLAYERS" && lastMessage.payload) {
-      if (lastMessage.payload.p1) setP1(lastMessage.payload.p1);
-      if (lastMessage.payload.p2) setP2(lastMessage.payload.p2);
+      const syncP1 = lastMessage.payload.p1;
+      const syncP2 = lastMessage.payload.p2;
+      if (syncP1) setP1(syncP1);
+      if (syncP2) setP2(syncP2);
+      if (syncP1 || syncP2) {
+        onUpdatePlayers(syncP1 || p1, syncP2 || p2);
+      }
     }
   }, [lastMessage]);
 
   const isRemoteReady = worshipMode === "single" || peerStatus === "connected";
 
   const handleContinue = () => {
-    if (!isHost) return; // Only Host can start session!
+    if (!isHost) return;
     if (!isRemoteReady) return;
 
     const finalP1 = p1.trim() || "Karabelo";
-    const finalP2 = p2.trim() || "Candy";
+    const finalP2 = p2.trim() || "Dudu";
 
     onUpdatePlayers(finalP1, finalP2);
+    if (isRemote) {
+      broadcast({
+        type: "SYNC_PLAYERS",
+        payload: { p1: finalP1, p2: finalP2 },
+      });
+    }
     onContinue();
   };
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined" && roomCode) {
-      const shareUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
+      const p1Name = encodeURIComponent(p1.trim() || "Karabelo");
+      const p2Name = encodeURIComponent(p2.trim() || "Dudu");
+      const shareUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}&p1=${p1Name}&p2=${p2Name}`;
       navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
@@ -306,7 +350,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
               disabled={!isHost}
               value={p2}
               onChange={(e) => handleP2Change(e.target.value)}
-              placeholder="e.g. Candy"
+              placeholder="e.g. Dudu"
               className={`flex-1 px-4 py-3 rounded-2xl bg-white border border-cream-300 text-forest-900 font-medium focus:outline-none focus:ring-2 focus:ring-forest-700/50 shadow-inner text-base ${
                 !isHost ? "opacity-75 cursor-not-allowed bg-cream-100/50" : ""
               }`}
