@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream-50 text-forest-800 antialiased selection:bg-gold-300 selection:text-forest-900;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.glass-card {
+  background: rgba(253, 251, 247, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(229, 215, 192, 0.4);
+  box-shadow: 0 10px 30px -10px rgba(30, 58, 43, 0.05);
+}
+
+.parchment-card {
+  background: linear-gradient(135deg, #FAF6EE 0%, #F5EFE3 100%);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 12px 30px -8px rgba(107, 78, 61, 0.08);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #B89225 0%, #D4AF37 50%, #E5C158 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.forest-gradient-text {
+  background: linear-gradient(135deg, #1E3A2B 0%, #2D5A40 50%, #4E8752 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
