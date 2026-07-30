@@ -12,22 +12,53 @@ import { MainDiscussionScreen } from "@/components/screens/MainDiscussionScreen"
 import { EndingScreen } from "@/components/screens/EndingScreen";
 import { DEFAULT_PLAYER_1, DEFAULT_PLAYER_2 } from "@/data/players";
 
+// ─── Screen chapter titles — makes it feel like a storybook ─────────────────
+const CHAPTER_LABELS: Record<number, string> = {
+  1: "🌅 Welcome",
+  2: "🌈 Getting to Know Each Other",
+  3: "🌸 Discover Together",
+  4: "📜 Faithful Servants",
+  5: "💛 Heart or Action",
+  6: "📖 Spiritual Discussion",
+  7: "🌳 Closing Reflection",
+};
+
+// ─── Chapter transition variants ─────────────────────────────────────────────
+const variants = {
+  initial: (dir: number) => ({
+    opacity: 0,
+    x: dir > 0 ? 60 : -60,
+    scale: 0.98,
+    filter: "blur(4px)",
+  }),
+  animate: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    filter: "blur(0px)",
+  },
+  exit: (dir: number) => ({
+    opacity: 0,
+    x: dir > 0 ? -60 : 60,
+    scale: 0.97,
+    filter: "blur(4px)",
+  }),
+};
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [direction, setDirection] = useState<number>(1); // 1 = forward, -1 = back
   const [player1Name, setPlayer1Name] = useState<string>(DEFAULT_PLAYER_1.name);
   const [player2Name, setPlayer2Name] = useState<string>(DEFAULT_PLAYER_2.name);
   const [completedCharacters, setCompletedCharacters] = useState<string[]>([]);
 
-  // Load stored names if available
   useEffect(() => {
     try {
-      const storedP1 = localStorage.getItem("h2h_p1");
-      const storedP2 = localStorage.getItem("h2h_p2");
-      if (storedP1) setPlayer1Name(storedP1);
-      if (storedP2) setPlayer2Name(storedP2);
-    } catch {
-      // localStorage fallback
-    }
+      const p1 = localStorage.getItem("h2h_p1");
+      const p2 = localStorage.getItem("h2h_p2");
+      if (p1) setPlayer1Name(p1);
+      if (p2) setPlayer2Name(p2);
+    } catch {}
   }, []);
 
   const handleUpdatePlayers = (p1: string, p2: string) => {
@@ -36,27 +67,25 @@ export default function Home() {
     try {
       localStorage.setItem("h2h_p1", p1);
       localStorage.setItem("h2h_p2", p2);
-    } catch {
-      // localStorage fallback
-    }
+    } catch {}
   };
 
   const handleCharacterCompleted = (name: string) => {
-    if (!completedCharacters.includes(name)) {
-      setCompletedCharacters((prev) => [...prev, name]);
-    }
+    setCompletedCharacters((prev) =>
+      prev.includes(name) ? prev : [...prev, name]
+    );
   };
 
   const handleStepSelect = (step: number) => {
-    if (step >= 1 && step <= 7) {
-      setCurrentStep(step);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    if (step < 1 || step > 7) return;
+    setDirection(step > currentStep ? 1 : -1);
+    setCurrentStep(step);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between">
-      {/* Sticky Journey Header shown on active steps */}
+    <div className="min-h-screen flex flex-col">
+      {/* Sticky header after welcome */}
       {currentStep > 1 && (
         <JourneyHeader
           currentStep={currentStep}
@@ -66,16 +95,33 @@ export default function Home() {
         />
       )}
 
-      {/* Main Screen Transition Canvas */}
+      {/* Chapter label — subtle storybook context */}
+      {currentStep > 1 && (
+        <motion.div
+          key={`chapter-${currentStep}`}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="text-center pt-4 pb-1"
+        >
+          <span className="text-xs font-semibold text-forest-600/70 tracking-wider uppercase">
+            Chapter {currentStep} · {CHAPTER_LABELS[currentStep]}
+          </span>
+        </motion.div>
+      )}
+
+      {/* Main screen canvas */}
       <div className="flex-1 max-w-6xl w-full mx-auto px-4 py-4 sm:py-6">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" custom={direction}>
           {currentStep === 1 && (
             <motion.div
               key="welcome"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.4 }}
+              custom={direction}
+              variants={variants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
               <WelcomeScreen onStart={() => handleStepSelect(2)} />
             </motion.div>
@@ -84,10 +130,12 @@ export default function Home() {
           {currentStep === 2 && (
             <motion.div
               key="setup"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.4 }}
+              custom={direction}
+              variants={variants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
               <PlayerSetupScreen
                 player1Name={player1Name}
@@ -101,10 +149,12 @@ export default function Home() {
           {currentStep === 3 && (
             <motion.div
               key="icebreaker"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.4 }}
+              custom={direction}
+              variants={variants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
               <IcebreakerScreen
                 player1Name={player1Name}
@@ -117,10 +167,12 @@ export default function Home() {
           {currentStep === 4 && (
             <motion.div
               key="character"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.4 }}
+              custom={direction}
+              variants={variants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
               <BibleCharacterScreen
                 onContinue={() => handleStepSelect(5)}
@@ -132,10 +184,12 @@ export default function Home() {
           {currentStep === 5 && (
             <motion.div
               key="heartoraction"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.4 }}
+              custom={direction}
+              variants={variants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
               <HeartOrActionScreen onContinue={() => handleStepSelect(6)} />
             </motion.div>
@@ -144,10 +198,12 @@ export default function Home() {
           {currentStep === 6 && (
             <motion.div
               key="discussion"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.4 }}
+              custom={direction}
+              variants={variants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
               <MainDiscussionScreen onContinue={() => handleStepSelect(7)} />
             </motion.div>
@@ -156,10 +212,12 @@ export default function Home() {
           {currentStep === 7 && (
             <motion.div
               key="ending"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.4 }}
+              custom={direction}
+              variants={variants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
               <EndingScreen
                 player1Name={player1Name}
