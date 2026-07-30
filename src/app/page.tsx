@@ -11,8 +11,8 @@ import { HeartOrActionScreen } from "@/components/screens/HeartOrActionScreen";
 import { MainDiscussionScreen } from "@/components/screens/MainDiscussionScreen";
 import { EndingScreen } from "@/components/screens/EndingScreen";
 import { DEFAULT_PLAYER_1, DEFAULT_PLAYER_2 } from "@/data/players";
+import { usePeer } from "@/context/PeerContext";
 
-// ─── Screen chapter titles — makes it feel like a storybook ─────────────────
 const CHAPTER_LABELS: Record<number, string> = {
   1: "🌅 Welcome",
   2: "🌈 Getting to Know Each Other",
@@ -23,7 +23,6 @@ const CHAPTER_LABELS: Record<number, string> = {
   7: "🌳 Closing Reflection",
 };
 
-// ─── Chapter transition variants ─────────────────────────────────────────────
 const variants = {
   initial: (dir: number) => ({
     opacity: 0,
@@ -47,10 +46,12 @@ const variants = {
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [direction, setDirection] = useState<number>(1); // 1 = forward, -1 = back
+  const [direction, setDirection] = useState<number>(1);
   const [player1Name, setPlayer1Name] = useState<string>(DEFAULT_PLAYER_1.name);
   const [player2Name, setPlayer2Name] = useState<string>(DEFAULT_PLAYER_2.name);
   const [completedCharacters, setCompletedCharacters] = useState<string[]>([]);
+
+  const { broadcast, lastMessage, status: peerStatus, myRole } = usePeer();
 
   useEffect(() => {
     try {
@@ -61,6 +62,21 @@ export default function Home() {
     } catch {}
   }, []);
 
+  // Sync step navigation from partner
+  useEffect(() => {
+    if (lastMessage) {
+      if (lastMessage.type === "SYNC_STEP" && typeof lastMessage.payload?.step === "number") {
+        const nextStep = lastMessage.payload.step;
+        setDirection(nextStep > currentStep ? 1 : -1);
+        setCurrentStep(nextStep);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (lastMessage.type === "SYNC_PLAYERS" && lastMessage.payload) {
+        if (lastMessage.payload.p1) setPlayer1Name(lastMessage.payload.p1);
+        if (lastMessage.payload.p2) setPlayer2Name(lastMessage.payload.p2);
+      }
+    }
+  }, [lastMessage, currentStep]);
+
   const handleUpdatePlayers = (p1: string, p2: string) => {
     setPlayer1Name(p1);
     setPlayer2Name(p2);
@@ -68,6 +84,13 @@ export default function Home() {
       localStorage.setItem("h2h_p1", p1);
       localStorage.setItem("h2h_p2", p2);
     } catch {}
+
+    if (peerStatus === "connected") {
+      broadcast({
+        type: "SYNC_PLAYERS",
+        payload: { p1, p2 },
+      });
+    }
   };
 
   const handleCharacterCompleted = (name: string) => {
@@ -81,6 +104,13 @@ export default function Home() {
     setDirection(step > currentStep ? 1 : -1);
     setCurrentStep(step);
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (peerStatus === "connected") {
+      broadcast({
+        type: "SYNC_STEP",
+        payload: { step },
+      });
+    }
   };
 
   return (
