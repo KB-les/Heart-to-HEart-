@@ -67,9 +67,11 @@ export default function Home() {
     if (lastMessage) {
       if (lastMessage.type === "SYNC_STEP" && typeof lastMessage.payload?.step === "number") {
         const nextStep = lastMessage.payload.step;
-        setDirection(nextStep > currentStep ? 1 : -1);
-        setCurrentStep(nextStep);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (nextStep >= 1 && nextStep <= 7 && nextStep !== currentStep) {
+          setDirection(nextStep > currentStep ? 1 : -1);
+          setCurrentStep(nextStep);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       } else if (lastMessage.type === "SYNC_PLAYERS" && lastMessage.payload) {
         if (lastMessage.payload.p1) setPlayer1Name(lastMessage.payload.p1);
         if (lastMessage.payload.p2) setPlayer2Name(lastMessage.payload.p2);

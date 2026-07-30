@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Check, MessageCircle, Info } from "lucide-react";
+import { ArrowRight, Sparkles, Check, MessageCircle, Info, Clock, ShieldAlert } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import {
@@ -14,7 +14,6 @@ import {
   NatureOption,
 } from "@/data/icebreaker";
 import { FEELING_OPTIONS, FeelingOption } from "@/data/players";
-
 import { usePeer } from "@/context/PeerContext";
 
 interface IcebreakerScreenProps {
@@ -36,7 +35,8 @@ interface PlayerChoice {
 const FeelingPicker: React.FC<{
   selected: FeelingOption[];
   onToggle: (f: FeelingOption) => void;
-}> = ({ selected, onToggle }) => (
+  disabled?: boolean;
+}> = ({ selected, onToggle, disabled }) => (
   <div className="space-y-2">
     <div className="flex items-center justify-between">
       <p className="text-xs font-semibold text-forest-700 uppercase tracking-wider">
@@ -58,15 +58,16 @@ const FeelingPicker: React.FC<{
         return (
           <motion.button
             key={feeling}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
+            whileHover={disabled ? {} : { scale: 1.04 }}
+            whileTap={disabled ? {} : { scale: 0.96 }}
             type="button"
+            disabled={disabled}
             onClick={() => onToggle(feeling)}
             className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border ${
               isSelected
                 ? "bg-forest-800 text-cream-50 border-forest-700 shadow-md ring-2 ring-gold-400"
                 : "bg-white text-forest-800 border-cream-300 hover:border-forest-400"
-            }`}
+            } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {feeling}
           </motion.button>
@@ -77,10 +78,17 @@ const FeelingPicker: React.FC<{
 );
 
 // ─── Player Turn Badge ───────────────────────────────────────────────────────
-const TurnBadge: React.FC<{ name: string; icon: string }> = ({ name, icon }) => (
+const TurnBadge: React.FC<{ name: string; icon: string; isMyTurn?: boolean; isRemote?: boolean }> = ({
+  name,
+  icon,
+  isMyTurn,
+  isRemote,
+}) => (
   <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-forest-800 text-cream-50 font-semibold text-sm shadow-md">
     <span>{icon}</span>
-    <span>Turn: {name}</span>
+    <span>
+      Turn: {name} {isRemote ? (isMyTurn ? " (Your Turn!)" : " (Waiting...)") : ""}
+    </span>
   </div>
 );
 
@@ -97,7 +105,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
   const [p1, setP1] = useState<PlayerChoice>({ colorFeelings: [], animalFeelings: [], natureFeelings: [] });
   const [p2, setP2] = useState<PlayerChoice>({ colorFeelings: [], animalFeelings: [], natureFeelings: [] });
 
-  const { broadcast, lastMessage, status: peerStatus } = usePeer();
+  const { broadcast, lastMessage, status: peerStatus, myRole } = usePeer();
 
   // Listen for incoming partner choices over WebRTC
   React.useEffect(() => {
@@ -119,11 +127,15 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
     }
   };
 
+  const isRemote = peerStatus === "connected";
+  const isMyTurn = !isRemote || (myRole === "host" && activePlayer === 1) || (myRole === "guest" && activePlayer === 2);
+
   const currentName = activePlayer === 1 ? player1Name : player2Name;
   const currentIcon = activePlayer === 1 ? "🌿" : "🌸";
   const current = activePlayer === 1 ? p1 : p2;
 
   const updateCurrentChoice = (updater: (prev: PlayerChoice) => PlayerChoice) => {
+    if (!isMyTurn) return; // Prevent turn stealing
     if (activePlayer === 1) {
       setP1((prev) => {
         const nextP1 = updater(prev);
@@ -153,6 +165,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
   };
 
   const canAdvance = () => {
+    if (!isMyTurn) return false;
     if (stage === 1) return !!current.color && current.colorFeelings.length === 2;
     if (stage === 2) return !!current.animal && current.animalFeelings.length === 2;
     if (stage === 3) return !!current.nature && current.natureFeelings.length === 2;
@@ -160,6 +173,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
   };
 
   const handleAdvance = () => {
+    if (!isMyTurn) return;
     let nextStage = stage;
     let nextActivePlayer = activePlayer;
 
@@ -181,7 +195,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
 
   const stageLabels = ["Favourite Colour", "Favourite Animal", "Favourite Place in Nature"];
 
-  // ── page slide variant ───────────────────────────────────────────────────
   const pageVariants = {
     initial: { opacity: 0, x: 40 },
     animate: { opacity: 1, x: 0 },
@@ -190,7 +203,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 text-center">
-      {/* ── Header ── */}
+      {/* Header */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
         <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-gold-100 text-forest-900 border border-gold-300">
           <Sparkles className="w-3.5 h-3.5 text-gold-600" />
@@ -200,11 +213,13 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
           Let&apos;s get to know each other
         </h2>
         <p className="text-sm text-forest-700 max-w-md mx-auto">
-          Answer these three questions together — one person at a time.
+          {isRemote
+            ? "Answer these three questions — turns switch automatically on your screens!"
+            : "Answer these three questions together — one person at a time."}
         </p>
       </motion.div>
 
-      {/* ── Stage Progress Pills ── */}
+      {/* Stage Progress Pills */}
       {stage < 4 && (
         <div className="flex items-center justify-center gap-2">
           {[1, 2, 3].map((s) => (
@@ -224,10 +239,22 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
         </div>
       )}
 
+      {/* Remote Turn Waiting Banner if NOT my turn */}
+      {isRemote && stage < 4 && !isMyTurn && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 flex items-center justify-center gap-3 shadow-md"
+        >
+          <Clock className="w-5 h-5 text-amber-600 animate-spin" />
+          <span className="text-xs sm:text-sm font-bold">
+            Waiting for <strong>{currentName}</strong> to pick their {stageLabels[stage - 1].toLowerCase()} on their device...
+          </span>
+        </motion.div>
+      )}
+
       <AnimatePresence mode="wait">
-        {/* ═══════════════════════════════════════════
-            STAGE 1 — COLOUR
-        ═══════════════════════════════════════════ */}
+        {/* STAGE 1 — COLOUR */}
         {stage === 1 && (
           <motion.div
             key={`stage1-p${activePlayer}`}
@@ -237,8 +264,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
             exit="exit"
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Card variant="glass" className="p-6 sm:p-10 space-y-8 text-left">
-              {/* Question Header */}
+            <Card variant="glass" className="p-6 sm:p-10 space-y-8 text-left relative">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cream-200 pb-4">
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-gold-600">Question 1 of 3</span>
@@ -246,27 +272,27 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     What is your favourite Colour?
                   </h3>
                 </div>
-                <TurnBadge name={currentName} icon={currentIcon} />
+                <TurnBadge name={currentName} icon={currentIcon} isMyTurn={isMyTurn} isRemote={isRemote} />
               </div>
 
-              {/* ─── COLOUR CIRCLES ─────────────────────────── */}
+              {/* COLOUR CIRCLES */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {COLOR_OPTIONS.map((col) => {
                   const isSelected = current.color?.name === col.name;
                   return (
                     <motion.button
                       key={col.name}
-                      whileHover={{ scale: 1.06, y: -3 }}
-                      whileTap={{ scale: 0.94 }}
+                      whileHover={isMyTurn ? { scale: 1.06, y: -3 } : {}}
+                      whileTap={isMyTurn ? { scale: 0.94 } : {}}
                       type="button"
+                      disabled={!isMyTurn}
                       onClick={() => updateCurrentChoice((prev) => ({ ...prev, color: col }))}
                       className={`relative flex flex-col items-center gap-3 p-4 rounded-2xl transition-all border-2 ${
                         isSelected
                           ? "border-forest-800 bg-white shadow-xl ring-4 ring-gold-300"
                           : "border-transparent bg-white/70 hover:bg-white hover:border-cream-300 shadow-sm"
-                      }`}
+                      } ${!isMyTurn ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
-                      {/* Colour Swatch Circle — inline style to guarantee rendering */}
                       <div
                         className="w-16 h-16 rounded-full shadow-lg flex items-center justify-center"
                         style={{
@@ -296,7 +322,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                 })}
               </div>
 
-              {/* ─── FEELING PICKER ─────────────────────────── */}
+              {/* FEELING PICKER */}
               <AnimatePresence>
                 {current.color && (
                   <motion.div
@@ -306,6 +332,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     className="overflow-hidden pt-4 border-t border-cream-200"
                   >
                     <FeelingPicker
+                      disabled={!isMyTurn}
                       selected={current.colorFeelings}
                       onToggle={(f) => toggleFeeling("color", f)}
                     />
@@ -322,7 +349,11 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                   className={!canAdvance() ? "opacity-40 cursor-not-allowed" : ""}
                 >
                   <span>
-                    {activePlayer === 1
+                    {isRemote
+                      ? activePlayer === 1
+                        ? `Submit My Selection`
+                        : "Submit & Continue to Question 2"
+                      : activePlayer === 1
                       ? `Save & Pass to ${player2Name}`
                       : "Continue to Question 2"}
                   </span>
@@ -333,9 +364,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
           </motion.div>
         )}
 
-        {/* ═══════════════════════════════════════════
-            STAGE 2 — ANIMAL
-        ═══════════════════════════════════════════ */}
+        {/* STAGE 2 — ANIMAL */}
         {stage === 2 && (
           <motion.div
             key={`stage2-p${activePlayer}`}
@@ -353,7 +382,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     What is your favourite Animal?
                   </h3>
                 </div>
-                <TurnBadge name={currentName} icon={currentIcon} />
+                <TurnBadge name={currentName} icon={currentIcon} isMyTurn={isMyTurn} isRemote={isRemote} />
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -362,15 +391,16 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                   return (
                     <motion.button
                       key={an.id}
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={isMyTurn ? { scale: 1.05, y: -2 } : {}}
+                      whileTap={isMyTurn ? { scale: 0.95 } : {}}
                       type="button"
+                      disabled={!isMyTurn}
                       onClick={() => updateCurrentChoice((prev) => ({ ...prev, animal: an }))}
                       className={`flex flex-col items-center text-center gap-2.5 p-5 rounded-2xl transition-all border-2 ${
                         isSelected
                           ? "border-forest-800 bg-white shadow-xl ring-4 ring-gold-300"
                           : "border-transparent bg-white/70 hover:bg-white hover:border-cream-300 shadow-sm"
-                      }`}
+                      } ${!isMyTurn ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
                       <span className="text-5xl">{an.icon}</span>
                       <p className="text-xs font-bold text-forest-900">{an.name}</p>
@@ -394,6 +424,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     className="overflow-hidden pt-4 border-t border-cream-200"
                   >
                     <FeelingPicker
+                      disabled={!isMyTurn}
                       selected={current.animalFeelings}
                       onToggle={(f) => toggleFeeling("animal", f)}
                     />
@@ -409,7 +440,11 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                   className={!canAdvance() ? "opacity-40 cursor-not-allowed" : ""}
                 >
                   <span>
-                    {activePlayer === 1
+                    {isRemote
+                      ? activePlayer === 1
+                        ? `Submit My Selection`
+                        : "Submit & Continue to Question 3"
+                      : activePlayer === 1
                       ? `Save & Pass to ${player2Name}`
                       : "Continue to Question 3"}
                   </span>
@@ -420,9 +455,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
           </motion.div>
         )}
 
-        {/* ═══════════════════════════════════════════
-            STAGE 3 — NATURE
-        ═══════════════════════════════════════════ */}
+        {/* STAGE 3 — NATURE */}
         {stage === 3 && (
           <motion.div
             key={`stage3-p${activePlayer}`}
@@ -440,7 +473,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     What is your favourite Place in Nature?
                   </h3>
                 </div>
-                <TurnBadge name={currentName} icon={currentIcon} />
+                <TurnBadge name={currentName} icon={currentIcon} isMyTurn={isMyTurn} isRemote={isRemote} />
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -449,15 +482,16 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                   return (
                     <motion.button
                       key={nat.id}
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={isMyTurn ? { scale: 1.05, y: -2 } : {}}
+                      whileTap={isMyTurn ? { scale: 0.95 } : {}}
                       type="button"
+                      disabled={!isMyTurn}
                       onClick={() => updateCurrentChoice((prev) => ({ ...prev, nature: nat }))}
                       className={`relative flex flex-col items-center text-center gap-2.5 p-5 rounded-2xl overflow-hidden transition-all border-2 ${
                         isSelected
                           ? "border-white shadow-xl ring-4 ring-gold-300"
                           : "border-transparent shadow-sm"
-                      }`}
+                      } ${!isMyTurn ? "opacity-60 cursor-not-allowed" : ""}`}
                       style={{
                         background: isSelected
                           ? nat.bgGradient
@@ -481,6 +515,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     className="overflow-hidden pt-4 border-t border-cream-200"
                   >
                     <FeelingPicker
+                      disabled={!isMyTurn}
                       selected={current.natureFeelings}
                       onToggle={(f) => toggleFeeling("nature", f)}
                     />
@@ -496,7 +531,11 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                   className={!canAdvance() ? "opacity-40 cursor-not-allowed" : ""}
                 >
                   <span>
-                    {activePlayer === 1
+                    {isRemote
+                      ? activePlayer === 1
+                        ? `Submit My Selection`
+                        : "Submit & See Our Answers Together"
+                      : activePlayer === 1
                       ? `Save & Pass to ${player2Name}`
                       : "See Our Answers Together"}
                   </span>
@@ -507,9 +546,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
           </motion.div>
         )}
 
-        {/* ═══════════════════════════════════════════
-            STAGE 4 — SUMMARY + REFLECTION
-        ═══════════════════════════════════════════ */}
+        {/* STAGE 4 — SUMMARY + REFLECTION */}
         {stage === 4 && (
           <motion.div
             key="stage4"
@@ -520,7 +557,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="space-y-8"
           >
-            {/* ── SUMMARY HEADER ── */}
             <Card variant="glass" className="p-6 sm:p-10 space-y-8 text-center">
               <div className="space-y-2">
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-gold-100 text-forest-900 border border-gold-300">
@@ -534,7 +570,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                 </p>
               </div>
 
-              {/* ── SIDE-BY-SIDE PLAYER CARDS ── */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                 {[
                   { choice: p1, name: player1Name, icon: "🌿" },
@@ -544,7 +579,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     key={name}
                     className="p-6 rounded-3xl bg-gradient-to-br from-cream-50 to-white border border-gold-200 shadow-card space-y-4"
                   >
-                    {/* Player header */}
                     <div className="flex items-center gap-2.5 pb-3 border-b border-cream-200">
                       <span className="text-2xl">{icon}</span>
                       <div>
@@ -553,7 +587,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                       </div>
                     </div>
 
-                    {/* Colour Row */}
                     <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-cream-200">
                       <div
                         className="w-10 h-10 rounded-full flex-shrink-0 shadow-md"
@@ -575,7 +608,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                       </div>
                     </div>
 
-                    {/* Animal Row */}
                     <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-cream-200">
                       <span className="text-3xl flex-shrink-0">{choice.animal?.icon ?? "—"}</span>
                       <div className="flex-1 min-w-0">
@@ -592,7 +624,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                       </div>
                     </div>
 
-                    {/* Nature Row */}
                     <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-cream-200">
                       <span className="text-3xl flex-shrink-0">{choice.nature?.icon ?? "—"}</span>
                       <div className="flex-1 min-w-0">
@@ -612,7 +643,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                 ))}
               </div>
 
-              {/* Jehovah's creation affirmation */}
               <motion.div
                 initial={{ scale: 0.96, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -630,7 +660,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
               </motion.div>
             </Card>
 
-            {/* ── REFLECTION SECTION ── */}
             <Card variant="parchment" className="p-6 sm:p-10 space-y-8 text-left">
               <div className="space-y-2">
                 <h3 className="font-serif text-2xl sm:text-3xl font-bold text-forest-900 flex items-center gap-2">
@@ -638,7 +667,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                   What Your Choices May Suggest
                 </h3>
 
-                {/* Disclaimer */}
                 <div className="flex items-start gap-2.5 p-4 rounded-2xl bg-gold-50 border border-gold-200 text-xs text-forest-700 font-medium">
                   <Info className="w-4 h-4 text-gold-600 flex-shrink-0 mt-0.5" />
                   <p>
@@ -647,9 +675,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                 </div>
               </div>
 
-              {/* Reflection Rows */}
               <div className="space-y-6">
-                {/* Colour reflection */}
                 <div className="space-y-4">
                   <h4 className="font-serif font-bold text-lg text-forest-900 flex items-center gap-2">
                     <span className="text-xl">🎨</span> Favourite Colour
@@ -682,7 +708,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     ))}
                   </div>
 
-                  {/* Conversation starters */}
                   <ReflectionQuestions questions={[
                     "What made you choose this colour?",
                     "Does the description feel true to how you see yourself?",
@@ -692,7 +717,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
 
                 <div className="border-t border-gold-200" />
 
-                {/* Animal reflection */}
                 <div className="space-y-4">
                   <h4 className="font-serif font-bold text-lg text-forest-900 flex items-center gap-2">
                     <span className="text-xl">🐾</span> Favourite Animal
@@ -727,7 +751,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
 
                 <div className="border-t border-gold-200" />
 
-                {/* Nature reflection */}
                 <div className="space-y-4">
                   <h4 className="font-serif font-bold text-lg text-forest-900 flex items-center gap-2">
                     <span className="text-xl">🌿</span> Favourite Place in Nature
@@ -761,7 +784,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                 </div>
               </div>
 
-              {/* Continue button */}
               <div className="pt-6 text-center">
                 <Button variant="gold" size="lg" onClick={onContinue} className="shadow-lg">
                   <span>Proceed to Guess the Bible Character</span>
@@ -776,7 +798,6 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
   );
 };
 
-// ─── Small helper: Reflection questions list ─────────────────────────────────
 const ReflectionQuestions: React.FC<{ questions: string[] }> = ({ questions }) => (
   <div className="p-4 rounded-2xl bg-forest-800/5 border border-forest-800/10 space-y-2">
     <p className="text-[10px] font-bold uppercase tracking-wider text-gold-700">Conversation starters:</p>
