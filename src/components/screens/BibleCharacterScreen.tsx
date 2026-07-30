@@ -19,6 +19,8 @@ import { Card } from "../ui/Card";
 import { BIBLE_CHARACTERS, BibleCharacter } from "@/data/bibleCharacters";
 import { useSound } from "@/context/SoundContext";
 
+import { usePeer } from "@/context/PeerContext";
+
 interface BibleCharacterScreenProps {
   onContinue: () => void;
   onCharacterCompleted?: (characterName: string) => void;
@@ -35,18 +37,43 @@ export const BibleCharacterScreen: React.FC<BibleCharacterScreenProps> = ({
   const [isAnswerRevealed, setIsAnswerRevealed] = useState<boolean>(false);
   const [userGuessInput, setUserGuessInput] = useState<string>("");
 
+  const { broadcast, lastMessage, status: peerStatus } = usePeer();
+
+  // Sync state over WebRTC
+  const syncState = (idx: number, clues: number, isAns: boolean) => {
+    if (peerStatus === "connected") {
+      broadcast({
+        type: "SYNC_CHARACTER",
+        payload: { characterIndex: idx, revealedClues: clues, isAnswerRevealed: isAns },
+      });
+    }
+  };
+
+  // Listen for partner actions
+  React.useEffect(() => {
+    if (lastMessage && lastMessage.type === "SYNC_CHARACTER" && lastMessage.payload) {
+      const { characterIndex: syncIdx, revealedClues: syncClues, isAnswerRevealed: syncAns } = lastMessage.payload;
+      if (typeof syncIdx === "number") setCharacterIndex(syncIdx);
+      if (typeof syncClues === "number") setRevealedClues(syncClues);
+      if (typeof syncAns === "boolean") setIsAnswerRevealed(syncAns);
+    }
+  }, [lastMessage]);
+
   const currentCharacter: BibleCharacter = BIBLE_CHARACTERS[characterIndex];
 
   const handleNextClue = () => {
     playSound("pageTurn");
     if (revealedClues < currentCharacter.clues.length) {
-      setRevealedClues((prev) => prev + 1);
+      const nextClues = revealedClues + 1;
+      setRevealedClues(nextClues);
+      syncState(characterIndex, nextClues, isAnswerRevealed);
     }
   };
 
   const handleRevealAnswer = () => {
     playSound("celebrate");
     setIsAnswerRevealed(true);
+    syncState(characterIndex, revealedClues, true);
     if (onCharacterCompleted) {
       onCharacterCompleted(currentCharacter.name);
     }
@@ -55,10 +82,12 @@ export const BibleCharacterScreen: React.FC<BibleCharacterScreenProps> = ({
   const handleNextCharacter = () => {
     playSound("click");
     if (characterIndex < BIBLE_CHARACTERS.length - 1) {
-      setCharacterIndex((prev) => prev + 1);
+      const nextIdx = characterIndex + 1;
+      setCharacterIndex(nextIdx);
       setRevealedClues(1);
       setIsAnswerRevealed(false);
       setUserGuessInput("");
+      syncState(nextIdx, 1, false);
     } else {
       onContinue();
     }

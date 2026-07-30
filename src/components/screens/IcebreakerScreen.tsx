@@ -15,6 +15,8 @@ import {
 } from "@/data/icebreaker";
 import { FEELING_OPTIONS, FeelingOption } from "@/data/players";
 
+import { usePeer } from "@/context/PeerContext";
+
 interface IcebreakerScreenProps {
   player1Name: string;
   player2Name: string;
@@ -95,20 +97,59 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
   const [p1, setP1] = useState<PlayerChoice>({ colorFeelings: [], animalFeelings: [], natureFeelings: [] });
   const [p2, setP2] = useState<PlayerChoice>({ colorFeelings: [], animalFeelings: [], natureFeelings: [] });
 
+  const { broadcast, lastMessage, status: peerStatus } = usePeer();
+
+  // Listen for incoming partner choices over WebRTC
+  React.useEffect(() => {
+    if (lastMessage && lastMessage.type === "SYNC_ICEBREAKER" && lastMessage.payload) {
+      const { p1: syncP1, p2: syncP2, stage: syncStage, activePlayer: syncActivePlayer } = lastMessage.payload;
+      if (syncP1) setP1(syncP1);
+      if (syncP2) setP2(syncP2);
+      if (syncStage) setStage(syncStage);
+      if (syncActivePlayer) setActivePlayer(syncActivePlayer);
+    }
+  }, [lastMessage]);
+
+  const syncState = (newP1: PlayerChoice, newP2: PlayerChoice, newStage: 1 | 2 | 3 | 4, newActivePlayer: 1 | 2) => {
+    if (peerStatus === "connected") {
+      broadcast({
+        type: "SYNC_ICEBREAKER",
+        payload: { p1: newP1, p2: newP2, stage: newStage, activePlayer: newActivePlayer },
+      });
+    }
+  };
+
   const currentName = activePlayer === 1 ? player1Name : player2Name;
   const currentIcon = activePlayer === 1 ? "🌿" : "🌸";
   const current = activePlayer === 1 ? p1 : p2;
-  const setCurrent = activePlayer === 1 ? setP1 : setP2;
+
+  const updateCurrentChoice = (updater: (prev: PlayerChoice) => PlayerChoice) => {
+    if (activePlayer === 1) {
+      setP1((prev) => {
+        const nextP1 = updater(prev);
+        syncState(nextP1, p2, stage, activePlayer);
+        return nextP1;
+      });
+    } else {
+      setP2((prev) => {
+        const nextP2 = updater(prev);
+        syncState(p1, nextP2, stage, activePlayer);
+        return nextP2;
+      });
+    }
+  };
 
   const toggleFeeling = (type: "color" | "animal" | "nature", feeling: FeelingOption) => {
     const key = `${type}Feelings` as "colorFeelings" | "animalFeelings" | "natureFeelings";
-    const list = current[key] as FeelingOption[];
-    const updated = list.includes(feeling)
-      ? list.filter((f) => f !== feeling)
-      : list.length >= 2
-      ? [list[1], feeling]
-      : [...list, feeling];
-    setCurrent((prev) => ({ ...prev, [key]: updated }));
+    updateCurrentChoice((prev) => {
+      const list = prev[key] as FeelingOption[];
+      const updated = list.includes(feeling)
+        ? list.filter((f) => f !== feeling)
+        : list.length >= 2
+        ? [list[1], feeling]
+        : [...list, feeling];
+      return { ...prev, [key]: updated };
+    });
   };
 
   const canAdvance = () => {
@@ -119,16 +160,23 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
   };
 
   const handleAdvance = () => {
+    let nextStage = stage;
+    let nextActivePlayer = activePlayer;
+
     if (activePlayer === 1) {
-      setActivePlayer(2);
+      nextActivePlayer = 2;
     } else {
       if (stage < 3) {
-        setStage((s) => (s + 1) as 1 | 2 | 3 | 4);
-        setActivePlayer(1);
+        nextStage = (stage + 1) as 1 | 2 | 3 | 4;
+        nextActivePlayer = 1;
       } else {
-        setStage(4);
+        nextStage = 4;
       }
     }
+
+    setStage(nextStage);
+    setActivePlayer(nextActivePlayer);
+    syncState(p1, p2, nextStage, nextActivePlayer);
   };
 
   const stageLabels = ["Favourite Colour", "Favourite Animal", "Favourite Place in Nature"];
@@ -211,7 +259,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                       whileHover={{ scale: 1.06, y: -3 }}
                       whileTap={{ scale: 0.94 }}
                       type="button"
-                      onClick={() => setCurrent((prev) => ({ ...prev, color: col }))}
+                      onClick={() => updateCurrentChoice((prev) => ({ ...prev, color: col }))}
                       className={`relative flex flex-col items-center gap-3 p-4 rounded-2xl transition-all border-2 ${
                         isSelected
                           ? "border-forest-800 bg-white shadow-xl ring-4 ring-gold-300"
@@ -317,7 +365,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       type="button"
-                      onClick={() => setCurrent((prev) => ({ ...prev, animal: an }))}
+                      onClick={() => updateCurrentChoice((prev) => ({ ...prev, animal: an }))}
                       className={`flex flex-col items-center text-center gap-2.5 p-5 rounded-2xl transition-all border-2 ${
                         isSelected
                           ? "border-forest-800 bg-white shadow-xl ring-4 ring-gold-300"
@@ -404,7 +452,7 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       type="button"
-                      onClick={() => setCurrent((prev) => ({ ...prev, nature: nat }))}
+                      onClick={() => updateCurrentChoice((prev) => ({ ...prev, nature: nat }))}
                       className={`relative flex flex-col items-center text-center gap-2.5 p-5 rounded-2xl overflow-hidden transition-all border-2 ${
                         isSelected
                           ? "border-white shadow-xl ring-4 ring-gold-300"

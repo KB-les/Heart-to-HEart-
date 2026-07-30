@@ -17,6 +17,8 @@ import { Card } from "../ui/Card";
 import { HEART_OR_ACTION_SCENARIOS, HeartOrActionScenario } from "@/data/heartOrAction";
 import { useSound } from "@/context/SoundContext";
 
+import { usePeer } from "@/context/PeerContext";
+
 interface HeartOrActionScreenProps {
   onContinue: () => void;
   onScenarioCompleted?: (id: string) => void;
@@ -35,11 +37,31 @@ export const HeartOrActionScreen: React.FC<HeartOrActionScreenProps> = ({
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [selectedChoice, setSelectedChoice] = useState<"Heart" | "Action" | "Both" | null>(null);
 
+  const { broadcast, lastMessage, status: peerStatus } = usePeer();
+
+  const syncState = (idx: number, choice: "Heart" | "Action" | "Both" | null) => {
+    if (peerStatus === "connected") {
+      broadcast({
+        type: "SYNC_HEART_ACTION",
+        payload: { currentIndex: idx, selectedChoice: choice },
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    if (lastMessage && lastMessage.type === "SYNC_HEART_ACTION" && lastMessage.payload) {
+      const { currentIndex: syncIdx, selectedChoice: syncChoice } = lastMessage.payload;
+      if (typeof syncIdx === "number") setCurrentIndex(syncIdx);
+      if (syncChoice !== undefined) setSelectedChoice(syncChoice);
+    }
+  }, [lastMessage]);
+
   const scenario: HeartOrActionScenario = HEART_OR_ACTION_SCENARIOS[currentIndex];
 
   const handleSelectChoice = (choice: "Heart" | "Action" | "Both") => {
     playSound("reveal");
     setSelectedChoice(choice);
+    syncState(currentIndex, choice);
     if (onScenarioCompleted) {
       onScenarioCompleted(scenario.id);
     }
@@ -48,8 +70,10 @@ export const HeartOrActionScreen: React.FC<HeartOrActionScreenProps> = ({
   const handleNextScenario = () => {
     playSound("click");
     if (currentIndex < HEART_OR_ACTION_SCENARIOS.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
+      const nextIdx = currentIndex + 1;
+      setCurrentIndex(nextIdx);
       setSelectedChoice(null);
+      syncState(nextIdx, null);
     } else {
       onContinue();
     }

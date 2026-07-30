@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, ArrowRight, Wifi, Copy, Check, Smartphone, Globe, Share2 } from "lucide-react";
+import { Users, ArrowRight, Wifi, Copy, Check, Smartphone, Globe, AlertCircle } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { usePeer } from "@/context/PeerContext";
@@ -44,7 +44,10 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
     }
   }, []);
 
+  const isRemoteReady = worshipMode === "single" || peerStatus === "connected";
+
   const handleContinue = () => {
+    if (!isRemoteReady) return;
     onUpdatePlayers(p1.trim() || "Partner 1", p2.trim() || "Partner 2");
     onContinue();
   };
@@ -160,7 +163,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
                   </div>
                 </div>
               </div>
-            ) : peerStatus === "waiting" || peerStatus === "generating" ? (
+            ) : peerStatus === "waiting" || peerStatus === "generating" || peerStatus === "connecting" ? (
               /* Waiting for Partner */
               <div className="p-4 rounded-xl bg-white border border-gold-300 text-center space-y-3">
                 <span className="text-xs font-bold text-forest-700 uppercase tracking-wider">
@@ -176,16 +179,17 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
                     <span>{copied ? "Link Copied!" : "Copy WhatsApp Share Link"}</span>
                   </Button>
                 </div>
-                <p className="text-[11px] text-forest-600 animate-pulse pt-1">
-                  ⌛ Waiting for your partner to join code <strong>{roomCode}</strong>...
-                </p>
+                <div className="flex items-center justify-center gap-2 text-xs text-forest-700 font-semibold pt-1">
+                  <AlertCircle className="w-4 h-4 text-amber-600 animate-bounce" />
+                  <span>Waiting for partner to join code <strong>{roomCode}</strong> before starting...</span>
+                </div>
               </div>
             ) : (
               /* Connected State */
               <div className="p-4 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-ping" />
-                  <span>Connected in Room: {roomCode}</span>
+                  <span>✅ Partner Connected! Room: {roomCode}</span>
                 </div>
                 <button
                   type="button"
@@ -253,10 +257,11 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
           <Button
             variant="gold"
             size="lg"
+            disabled={!isRemoteReady}
             onClick={handleContinue}
-            className="w-full sm:w-auto shadow-md"
+            className={`w-full sm:w-auto shadow-md ${!isRemoteReady ? "opacity-40 cursor-not-allowed" : ""}`}
           >
-            <span>Continue to Icebreaker</span>
+            <span>{isRemoteReady ? "Continue to Icebreaker" : "Waiting for Partner to Join..."}</span>
             <ArrowRight className="w-5 h-5" />
           </Button>
         </div>

@@ -19,6 +19,8 @@ import { VerseCard } from "../ui/VerseCard";
 import { PATIENCE_THEME, DiscussionCard, AdditionalScripture } from "@/data/mainDiscussion";
 import { useSound } from "@/context/SoundContext";
 
+import { usePeer } from "@/context/PeerContext";
+
 interface MainDiscussionScreenProps {
   onContinue: () => void;
   player1Name?: string;
@@ -34,11 +36,31 @@ export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
   const [activeTab, setActiveTab] = useState<"james" | "psalm" | "ecclesiastes">("james");
   const [activeCardIndex, setActiveCardIndex] = useState<number>(0);
 
+  const { broadcast, lastMessage, status: peerStatus } = usePeer();
+
+  const syncState = (tab: "james" | "psalm" | "ecclesiastes", cardIdx: number) => {
+    if (peerStatus === "connected") {
+      broadcast({
+        type: "SYNC_DISCUSSION",
+        payload: { activeTab: tab, activeCardIndex: cardIdx },
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    if (lastMessage && lastMessage.type === "SYNC_DISCUSSION" && lastMessage.payload) {
+      const { activeTab: syncTab, activeCardIndex: syncCardIdx } = lastMessage.payload;
+      if (syncTab) setActiveTab(syncTab);
+      if (typeof syncCardIdx === "number") setActiveCardIndex(syncCardIdx);
+    }
+  }, [lastMessage]);
+
   const theme = PATIENCE_THEME;
 
   const handleTabChange = (tab: "james" | "psalm" | "ecclesiastes") => {
     playSound("click");
     setActiveTab(tab);
+    syncState(tab, activeCardIndex);
   };
 
   return (
@@ -189,7 +211,11 @@ export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
                           variant="secondary"
                           size="sm"
                           disabled={activeCardIndex === 0}
-                          onClick={() => setActiveCardIndex((prev) => prev - 1)}
+                          onClick={() => {
+                            const next = activeCardIndex - 1;
+                            setActiveCardIndex(next);
+                            syncState(activeTab, next);
+                          }}
                         >
                           Previous Card
                         </Button>
@@ -198,7 +224,10 @@ export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
                           {theme.mainDiscussionCards.map((_, i) => (
                             <button
                               key={i}
-                              onClick={() => setActiveCardIndex(i)}
+                              onClick={() => {
+                                setActiveCardIndex(i);
+                                syncState(activeTab, i);
+                              }}
                               className={`w-2.5 h-2.5 rounded-full transition-all ${
                                 i === activeCardIndex
                                   ? "bg-forest-800 w-6"
@@ -212,7 +241,11 @@ export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
                           variant="gold"
                           size="sm"
                           disabled={activeCardIndex === theme.mainDiscussionCards.length - 1}
-                          onClick={() => setActiveCardIndex((prev) => prev + 1)}
+                          onClick={() => {
+                            const next = activeCardIndex + 1;
+                            setActiveCardIndex(next);
+                            syncState(activeTab, next);
+                          }}
                         >
                           Next Card
                         </Button>
