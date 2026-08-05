@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Check, MessageCircle, Info, Clock, ShieldAlert } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
+import { TurnBadge } from "../ui/TurnBadge";
+import { FeelingPicker } from "../ui/FeelingPicker";
+import { ReflectionQuestions } from "../ui/ReflectionQuestions";
 import {
   COLOR_OPTIONS,
   ANIMAL_OPTIONS,
@@ -13,7 +16,7 @@ import {
   AnimalOption,
   NatureOption,
 } from "@/data/icebreaker";
-import { FEELING_OPTIONS, FeelingOption } from "@/data/players";
+import { FeelingOption } from "@/data/players";
 import { usePeer } from "@/context/PeerContext";
 
 interface IcebreakerScreenProps {
@@ -30,67 +33,6 @@ interface PlayerChoice {
   nature?: NatureOption;
   natureFeelings: FeelingOption[];
 }
-
-// ─── Reusable Feeling Picker ────────────────────────────────────────────────
-const FeelingPicker: React.FC<{
-  selected: FeelingOption[];
-  onToggle: (f: FeelingOption) => void;
-  disabled?: boolean;
-}> = ({ selected, onToggle, disabled }) => (
-  <div className="space-y-2">
-    <div className="flex items-center justify-between">
-      <p className="text-xs font-semibold text-forest-700 uppercase tracking-wider">
-        Choose TWO feelings this brings you:
-      </p>
-      <span
-        className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-          selected.length === 2
-            ? "bg-forest-800 text-cream-50"
-            : "bg-cream-200 text-forest-600"
-        }`}
-      >
-        {selected.length} / 2
-      </span>
-    </div>
-    <div className="flex flex-wrap gap-2">
-      {FEELING_OPTIONS.map((feeling) => {
-        const isSelected = selected.includes(feeling);
-        return (
-          <motion.button
-            key={feeling}
-            whileHover={disabled ? {} : { scale: 1.04 }}
-            whileTap={disabled ? {} : { scale: 0.96 }}
-            type="button"
-            disabled={disabled}
-            onClick={() => onToggle(feeling)}
-            className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border ${
-              isSelected
-                ? "bg-forest-800 text-cream-50 border-forest-700 shadow-md ring-2 ring-gold-400"
-                : "bg-white text-forest-800 border-cream-300 hover:border-forest-400"
-            } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            {feeling}
-          </motion.button>
-        );
-      })}
-    </div>
-  </div>
-);
-
-// ─── Player Turn Badge ───────────────────────────────────────────────────────
-const TurnBadge: React.FC<{ name: string; icon: string; isMyTurn?: boolean; isRemote?: boolean }> = ({
-  name,
-  icon,
-  isMyTurn,
-  isRemote,
-}) => (
-  <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-forest-800 text-cream-50 font-semibold text-sm shadow-md">
-    <span>{icon}</span>
-    <span>
-      Turn: {name} {isRemote ? (isMyTurn ? " (Your Turn!)" : " (Waiting...)") : ""}
-    </span>
-  </div>
-);
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
@@ -798,16 +740,3 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
   );
 };
 
-const ReflectionQuestions: React.FC<{ questions: string[] }> = ({ questions }) => (
-  <div className="p-4 rounded-2xl bg-forest-800/5 border border-forest-800/10 space-y-2">
-    <p className="text-[10px] font-bold uppercase tracking-wider text-gold-700">Conversation starters:</p>
-    <ul className="space-y-1.5">
-      {questions.map((q, i) => (
-        <li key={i} className="flex items-start gap-2 text-xs text-forest-800 font-medium">
-          <span className="text-gold-500 font-bold mt-0.5">•</span>
-          <span>{q}</span>
-        </li>
-      ))}
-    </ul>
-  </div>
-);

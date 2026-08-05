@@ -9,13 +9,15 @@ import {
   ChevronRight,
   BookOpen,
   Calendar,
-  HelpCircle,
   Award,
   ArrowRight,
   RotateCcw,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
+import { ClueCard } from "../ui/ClueCard";
+import { TimelineMilestone } from "../ui/TimelineMilestone";
+import { DiscussionQuestionsList } from "../ui/DiscussionQuestionsList";
 import { BIBLE_CHARACTERS, BibleCharacter } from "@/data/bibleCharacters";
 import { useSound } from "@/context/SoundContext";
 
@@ -143,25 +145,7 @@ export const BibleCharacterScreen: React.FC<BibleCharacterScreenProps> = ({
         {/* CLUES LIST (Appears 1 by 1 on animated parchment cards) */}
         <div className="space-y-4">
           {currentCharacter.clues.slice(0, revealedClues).map((clue, idx) => (
-            <motion.div
-              key={clue.number}
-              initial={{ opacity: 0, x: -20, scale: 0.98 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ duration: 0.4, delay: idx * 0.1 }}
-              className="p-5 rounded-2xl bg-white/90 border border-gold-300/60 shadow-sm flex items-start gap-4"
-            >
-              <div className="w-8 h-8 rounded-full bg-forest-800 text-gold-300 font-serif font-bold text-sm flex items-center justify-center flex-shrink-0">
-                {clue.number}
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-gold-600">
-                  Clue #{clue.number}
-                </span>
-                <p className="font-serif text-base sm:text-lg text-forest-900 leading-relaxed italic">
-                  &ldquo;{clue.text}&rdquo;
-                </p>
-              </div>
-            </motion.div>
+            <ClueCard key={clue.number} number={clue.number} text={clue.text} index={idx} />
           ))}
         </div>
 
@@ -236,17 +220,7 @@ export const BibleCharacterScreen: React.FC<BibleCharacterScreenProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {currentCharacter.timeline.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-2xl bg-white/90 border border-gold-300/50 shadow-sm space-y-1"
-                  >
-                    <span className="text-[11px] font-bold text-gold-700 uppercase tracking-wider">
-                      {item.period}
-                    </span>
-                    <p className="text-xs text-forest-900 font-medium leading-normal">
-                      {item.event}
-                    </p>
-                  </div>
+                  <TimelineMilestone key={idx} period={item.period} event={item.event} />
                 ))}
               </div>
             </div>
@@ -280,23 +254,7 @@ export const BibleCharacterScreen: React.FC<BibleCharacterScreenProps> = ({
             </div>
 
             {/* Discussion Questions */}
-            <div className="p-6 rounded-3xl bg-forest-800 text-cream-50 space-y-4 shadow-lg">
-              <h4 className="font-serif font-bold text-lg text-gold-300 flex items-center gap-2">
-                <HelpCircle className="w-5 h-5 text-gold-400" />
-                <span>Family Worship Discussion Prompts</span>
-              </h4>
-
-              <div className="space-y-3">
-                {currentCharacter.discussionQuestions.map((q, i) => (
-                  <div key={i} className="flex items-start gap-3 text-xs sm:text-sm">
-                    <span className="w-5 h-5 rounded-full bg-gold-400 text-forest-950 font-bold flex items-center justify-center flex-shrink-0 text-xs mt-0.5">
-                      {i + 1}
-                    </span>
-                    <p className="text-cream-100 font-medium leading-relaxed">{q}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <DiscussionQuestionsList questions={currentCharacter.discussionQuestions} />
 
             {/* Next Character / Screen Button */}
             <div className="flex flex-wrap items-center justify-between gap-4 pt-4">

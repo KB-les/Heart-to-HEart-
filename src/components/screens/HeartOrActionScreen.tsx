@@ -9,11 +9,11 @@ import {
   Layers,
   BookOpen,
   ArrowRight,
-  HelpCircle,
-  RotateCcw,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
+import { ChoiceCard } from "../ui/ChoiceCard";
+import { DiscussionQuestionsList } from "../ui/DiscussionQuestionsList";
 import { HEART_OR_ACTION_SCENARIOS, HeartOrActionScenario } from "@/data/heartOrAction";
 import { useSound } from "@/context/SoundContext";
 
@@ -127,59 +127,44 @@ export const HeartOrActionScreen: React.FC<HeartOrActionScreenProps> = ({
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Heart Button */}
-            <motion.button
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.97 }}
+            {/* Heart Choice */}
+            <ChoiceCard
+              selected={selectedChoice === "Heart"}
               onClick={() => handleSelectChoice("Heart")}
-              className={`p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border transition-all ${
-                selectedChoice === "Heart"
-                  ? "bg-rose-50 border-rose-400 ring-4 ring-rose-300 shadow-md"
-                  : "bg-white/80 hover:bg-white border-cream-300 shadow-sm"
-              }`}
+              selectedClassName="bg-rose-50 border-rose-400 ring-4 ring-rose-300 shadow-md"
             >
               <div className="w-12 h-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center shadow-md">
                 <Heart className="w-6 h-6 fill-white" />
               </div>
               <span className="font-serif font-bold text-lg text-forest-900">Heart</span>
               <span className="text-[11px] text-forest-600 text-center">Inner Motive & Love</span>
-            </motion.button>
+            </ChoiceCard>
 
-            {/* Action Button */}
-            <motion.button
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.97 }}
+            {/* Action Choice */}
+            <ChoiceCard
+              selected={selectedChoice === "Action"}
               onClick={() => handleSelectChoice("Action")}
-              className={`p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border transition-all ${
-                selectedChoice === "Action"
-                  ? "bg-sky-50 border-sky-400 ring-4 ring-sky-300 shadow-md"
-                  : "bg-white/80 hover:bg-white border-cream-300 shadow-sm"
-              }`}
+              selectedClassName="bg-sky-50 border-sky-400 ring-4 ring-sky-300 shadow-md"
             >
               <div className="w-12 h-12 rounded-2xl bg-skyCustom-500 text-white flex items-center justify-center shadow-md">
                 <Zap className="w-6 h-6 fill-white" />
               </div>
               <span className="font-serif font-bold text-lg text-forest-900">Action</span>
               <span className="text-[11px] text-forest-600 text-center">Outward Effort & Deed</span>
-            </motion.button>
+            </ChoiceCard>
 
-            {/* Both Button */}
-            <motion.button
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.97 }}
+            {/* Both Choice */}
+            <ChoiceCard
+              selected={selectedChoice === "Both"}
               onClick={() => handleSelectChoice("Both")}
-              className={`p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border transition-all ${
-                selectedChoice === "Both"
-                  ? "bg-emerald-50 border-emerald-400 ring-4 ring-emerald-300 shadow-md"
-                  : "bg-white/80 hover:bg-white border-cream-300 shadow-sm"
-              }`}
+              selectedClassName="bg-emerald-50 border-emerald-400 ring-4 ring-emerald-300 shadow-md"
             >
               <div className="w-12 h-12 rounded-2xl bg-forest-800 text-gold-300 flex items-center justify-center shadow-md">
                 <Layers className="w-6 h-6" />
               </div>
               <span className="font-serif font-bold text-lg text-forest-900">Both</span>
               <span className="text-[11px] text-forest-600 text-center">Heart & Deed in Harmony</span>
-            </motion.button>
+            </ChoiceCard>
           </div>
         </div>
 
@@ -219,23 +204,10 @@ export const HeartOrActionScreen: React.FC<HeartOrActionScreenProps> = ({
               </div>
 
               {/* Discussion Questions */}
-              <div className="p-6 rounded-3xl bg-forest-800 text-cream-50 space-y-4 shadow-lg">
-                <h4 className="font-serif font-bold text-lg text-gold-300 flex items-center gap-2">
-                  <HelpCircle className="w-5 h-5 text-gold-400" />
-                  <span>Discussion Questions for {player1Name} &amp; {player2Name}</span>
-                </h4>
-
-                <div className="space-y-3">
-                  {scenario.discussionQuestions.map((q, idx) => (
-                    <div key={idx} className="flex items-start gap-3 text-xs sm:text-sm">
-                      <span className="w-5 h-5 rounded-full bg-gold-400 text-forest-950 font-bold flex items-center justify-center flex-shrink-0 text-xs mt-0.5">
-                        {idx + 1}
-                      </span>
-                      <p className="text-cream-100 font-medium leading-relaxed">{q}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <DiscussionQuestionsList
+                title={`Discussion Questions for ${player1Name} & ${player2Name}`}
+                questions={scenario.discussionQuestions}
+              />
 
               {/* Next Scenario Button */}
               <div className="flex justify-end pt-2">

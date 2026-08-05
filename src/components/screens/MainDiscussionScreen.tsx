@@ -16,7 +16,8 @@ import {
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { VerseCard } from "../ui/VerseCard";
-import { PATIENCE_THEME, DiscussionCard, AdditionalScripture } from "@/data/mainDiscussion";
+import { DiscussionCard } from "../ui/DiscussionCard";
+import { PATIENCE_THEME, DiscussionCard as DiscussionCardType, AdditionalScripture } from "@/data/mainDiscussion";
 import { useSound } from "@/context/SoundContext";
 
 import { usePeer } from "@/context/PeerContext";
@@ -173,84 +174,31 @@ export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
                 {theme.mainDiscussionCards.map((card, index) => {
                   if (index !== activeCardIndex) return null;
                   return (
-                    <motion.div
+                    <DiscussionCard
                       key={card.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.35 }}
-                      className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-gold-100/90 via-white to-cream-100 border-2 border-gold-300 shadow-glow space-y-4"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase tracking-wider text-gold-700">
-                          {card.scriptureAnchor}
-                        </span>
-                        <span className="w-7 h-7 rounded-full bg-forest-800 text-gold-300 font-bold text-xs flex items-center justify-center">
-                          {index + 1}
-                        </span>
-                      </div>
-
-                      <h5 className="font-serif text-2xl sm:text-3xl font-bold text-forest-900 leading-snug">
-                        {card.question}
-                      </h5>
-
-                      {card.subtext && (
-                        <p className="text-xs sm:text-sm text-forest-700 italic">
-                          {card.subtext}
-                        </p>
-                      )}
-
-                      <div className="p-4 rounded-2xl bg-white/90 border border-gold-300/60 text-xs sm:text-sm text-forest-900 font-medium leading-relaxed">
-                        <strong className="text-gold-700">Personal Reflection:</strong>{" "}
-                        {card.reflectionPrompt}
-                      </div>
-
-                      {/* Card Navigation */}
-                      <div className="flex items-center justify-between pt-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          disabled={activeCardIndex === 0}
-                          onClick={() => {
-                            const next = activeCardIndex - 1;
-                            setActiveCardIndex(next);
-                            syncState(activeTab, next);
-                          }}
-                        >
-                          Previous Card
-                        </Button>
-
-                        <div className="flex gap-1.5">
-                          {theme.mainDiscussionCards.map((_, i) => (
-                            <button
-                              key={i}
-                              onClick={() => {
-                                setActiveCardIndex(i);
-                                syncState(activeTab, i);
-                              }}
-                              className={`w-2.5 h-2.5 rounded-full transition-all ${
-                                i === activeCardIndex
-                                  ? "bg-forest-800 w-6"
-                                  : "bg-cream-300"
-                              }`}
-                            />
-                          ))}
-                        </div>
-
-                        <Button
-                          variant="gold"
-                          size="sm"
-                          disabled={activeCardIndex === theme.mainDiscussionCards.length - 1}
-                          onClick={() => {
-                            const next = activeCardIndex + 1;
-                            setActiveCardIndex(next);
-                            syncState(activeTab, next);
-                          }}
-                        >
-                          Next Card
-                        </Button>
-                      </div>
-                    </motion.div>
+                      question={card.question}
+                      subtext={card.subtext}
+                      scriptureAnchor={card.scriptureAnchor}
+                      reflectionPrompt={card.reflectionPrompt}
+                      index={index}
+                      total={theme.mainDiscussionCards.length}
+                      canPrevious={activeCardIndex > 0}
+                      canNext={activeCardIndex < theme.mainDiscussionCards.length - 1}
+                      onPrevious={() => {
+                        const next = activeCardIndex - 1;
+                        setActiveCardIndex(next);
+                        syncState(activeTab, next);
+                      }}
+                      onNext={() => {
+                        const next = activeCardIndex + 1;
+                        setActiveCardIndex(next);
+                        syncState(activeTab, next);
+                      }}
+                      onSelect={(i) => {
+                        setActiveCardIndex(i);
+                        syncState(activeTab, i);
+                      }}
+                    />
                   );
                 })}
               </AnimatePresence>

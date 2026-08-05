@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, ArrowRight, Wifi, Copy, Check, Smartphone, Globe, AlertCircle, Shield } from "lucide-react";
 import { Button } from "../ui/Button";
@@ -27,6 +27,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
   const [worshipMode, setWorshipMode] = useState<"single" | "remote">("single");
   const [inputCode, setInputCode] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
+  const hasInitialized = useRef<boolean>(false);
 
   const { mode: peerMode, status: peerStatus, roomCode, createRoom, joinRoom, leaveRoom, errorMessage, myRole, broadcast, lastMessage } = usePeer();
 
@@ -35,6 +36,9 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
 
   // Check URL query params for room code & host-defined player names (e.g. ?room=LOVE&p1=Karabelo&p2=Dudu)
   useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const roomParam = urlParams.get("room");
@@ -56,12 +60,12 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
 
       if (p1Param || p2Param) {
         onUpdatePlayers(
-          p1Param ? decodeURIComponent(p1Param) : p1,
-          p2Param ? decodeURIComponent(p2Param) : p2
+          p1Param ? decodeURIComponent(p1Param) : player1Name,
+          p2Param ? decodeURIComponent(p2Param) : player2Name
         );
       }
     }
-  }, []);
+  }, [onUpdatePlayers, player1Name, player2Name]);
 
   // Sync names when host types
   const handleP1Change = (val: string) => {
@@ -99,7 +103,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
       });
       onUpdatePlayers(name1, name2);
     }
-  }, [peerStatus, myRole]);
+  }, [peerStatus, myRole, p1, p2, broadcast, onUpdatePlayers]);
 
   // Guest receives names automatically from Host
   useEffect(() => {
@@ -112,7 +116,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
         onUpdatePlayers(syncP1 || p1, syncP2 || p2);
       }
     }
-  }, [lastMessage]);
+  }, [lastMessage, p1, p2, onUpdatePlayers]);
 
   const isRemoteReady = worshipMode === "single" || peerStatus === "connected";
 

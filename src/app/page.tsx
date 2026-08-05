@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { JourneyHeader } from "@/components/ui/JourneyHeader";
+import { SplashScreen } from "@/components/screens/SplashScreen";
 import { WelcomeScreen } from "@/components/screens/WelcomeScreen";
 import { PlayerSetupScreen } from "@/components/screens/PlayerSetupScreen";
 import { IcebreakerScreen } from "@/components/screens/IcebreakerScreen";
@@ -45,6 +46,7 @@ const variants = {
 };
 
 export default function Home() {
+  const [showSplash, setShowSplash] = useState<boolean>(true);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [direction, setDirection] = useState<number>(1);
   const [player1Name, setPlayer1Name] = useState<string>(DEFAULT_PLAYER_1.name);
@@ -79,21 +81,24 @@ export default function Home() {
     }
   }, [lastMessage, currentStep]);
 
-  const handleUpdatePlayers = (p1: string, p2: string) => {
-    setPlayer1Name(p1);
-    setPlayer2Name(p2);
-    try {
-      localStorage.setItem("h2h_p1", p1);
-      localStorage.setItem("h2h_p2", p2);
-    } catch {}
+  const handleUpdatePlayers = useCallback(
+    (p1: string, p2: string) => {
+      setPlayer1Name(p1);
+      setPlayer2Name(p2);
+      try {
+        localStorage.setItem("h2h_p1", p1);
+        localStorage.setItem("h2h_p2", p2);
+      } catch {}
 
-    if (peerStatus === "connected") {
-      broadcast({
-        type: "SYNC_PLAYERS",
-        payload: { p1, p2 },
-      });
-    }
-  };
+      if (peerStatus === "connected") {
+        broadcast({
+          type: "SYNC_PLAYERS",
+          payload: { p1, p2 },
+        });
+      }
+    },
+    [peerStatus, broadcast]
+  );
 
   const handleCharacterCompleted = (name: string) => {
     setCompletedCharacters((prev) =>
@@ -117,8 +122,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Splash screen — pre-journey state */}
+      {showSplash && (
+        <SplashScreen onComplete={() => setShowSplash(false)} />
+      )}
+
       {/* Sticky header after welcome */}
-      {currentStep > 1 && (
+      {!showSplash && currentStep > 1 && (
         <JourneyHeader
           currentStep={currentStep}
           player1Name={player1Name}
@@ -128,7 +138,7 @@ export default function Home() {
       )}
 
       {/* Chapter label — subtle storybook context */}
-      {currentStep > 1 && (
+      {!showSplash && currentStep > 1 && (
         <motion.div
           key={`chapter-${currentStep}`}
           initial={{ opacity: 0, y: -6 }}
@@ -143,6 +153,7 @@ export default function Home() {
       )}
 
       {/* Main screen canvas */}
+      {!showSplash && (
       <div className="flex-1 max-w-6xl w-full mx-auto px-4 py-4 sm:py-6">
         <AnimatePresence mode="wait" custom={direction}>
           {currentStep === 1 && (
@@ -273,6 +284,7 @@ export default function Home() {
           )}
         </AnimatePresence>
       </div>
+      )}
     </div>
   );
 }
