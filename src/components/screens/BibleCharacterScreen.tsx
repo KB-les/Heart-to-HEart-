@@ -13,6 +13,7 @@ import {
   Award,
   ArrowRight,
   RotateCcw,
+  Scroll,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
@@ -40,6 +41,7 @@ export const BibleCharacterScreen: React.FC<BibleCharacterScreenProps> = ({
   const [revealedClues, setRevealedClues] = useState<number>(1); // starts with clue 1
   const [isAnswerRevealed, setIsAnswerRevealed] = useState<boolean>(false);
   const [userGuessInput, setUserGuessInput] = useState<string>("");
+  const [imageError, setImageError] = useState<boolean>(false);
 
   const { broadcast, lastMessage, status: peerStatus } = usePeer();
 
@@ -85,6 +87,7 @@ export const BibleCharacterScreen: React.FC<BibleCharacterScreenProps> = ({
 
   const handleNextCharacter = () => {
     playSound("click");
+    setImageError(false);
     if (characterIndex < BIBLE_CHARACTERS.length - 1) {
       const nextIdx = characterIndex + 1;
       setCharacterIndex(nextIdx);
@@ -195,13 +198,22 @@ export const BibleCharacterScreen: React.FC<BibleCharacterScreenProps> = ({
                   transition={{ duration: 0.6 }}
                   className="relative w-full max-w-sm h-52 sm:h-60 mx-auto rounded-2xl overflow-hidden border-2 border-gold-400/80 shadow-md bg-stone-900"
                 >
-                  <Image
-                    src={BIBLE_CHARACTER_IMAGES[currentCharacter.id].imageUrl}
-                    alt={BIBLE_CHARACTER_IMAGES[currentCharacter.id].portraitAlt}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 384px"
-                    className="object-cover object-center"
-                  />
+                  {!imageError ? (
+                    <Image
+                      src={BIBLE_CHARACTER_IMAGES[currentCharacter.id].imageUrl}
+                      alt={BIBLE_CHARACTER_IMAGES[currentCharacter.id].portraitAlt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 384px"
+                      className="object-cover object-center"
+                      onError={() => setImageError(true)}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-gradient-to-b from-forest-900 to-forest-950 text-gold-200">
+                      <Scroll className="w-10 h-10 mb-2 text-gold-400 stroke-[1.5]" />
+                      <span className="font-serif text-lg font-bold">{currentCharacter.name}</span>
+                      <span className="text-xs text-cream-200/80 italic">{currentCharacter.title}</span>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950/80 via-transparent to-black/20" />
                   <div className="absolute bottom-2 left-3 right-3 text-left">
                     <p className="text-[11px] text-cream-100 italic leading-snug drop-shadow">
