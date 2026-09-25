@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -18,6 +19,7 @@ import { Card } from "../ui/Card";
 import { VerseCard } from "../ui/VerseCard";
 import { DiscussionCard } from "../ui/DiscussionCard";
 import { PATIENCE_THEME, DiscussionCard as DiscussionCardType, AdditionalScripture } from "@/data/mainDiscussion";
+import { DEVOTIONAL_IMAGES } from "@/data/imageAssets";
 import { useSound } from "@/context/SoundContext";
 
 import { usePeer } from "@/context/PeerContext";
@@ -88,8 +90,19 @@ export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
       {/* Illustrated Farmer Card */}
       <Card variant="glass" className="p-6 sm:p-10 space-y-6 text-left relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl bg-gradient-to-br from-emerald-900/10 via-cream-100 to-amber-100/50 border border-gold-300/60 shadow-soft">
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-forest-800 text-4xl sm:text-5xl flex items-center justify-center shadow-lg border border-gold-400/40 flex-shrink-0 select-none">
-            {theme.farmerIllustration.icon}
+          {/* Real Photography of Golden Wheat Waiting for Rain */}
+          <div className="relative w-full sm:w-44 h-36 rounded-2xl overflow-hidden shadow-md border border-gold-400/40 flex-shrink-0 bg-cream-200">
+            <Image
+              src={DEVOTIONAL_IMAGES.farmerPatience.imageUrl}
+              alt={DEVOTIONAL_IMAGES.farmerPatience.alt}
+              fill
+              sizes="(max-width: 640px) 100vw, 176px"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-forest-950/60 via-transparent to-transparent" />
+            <span className="absolute bottom-2 left-2 text-[10px] font-semibold text-gold-200 bg-forest-900/80 px-2 py-0.5 rounded-full">
+              James 5:7
+            </span>
           </div>
 
           <div className="space-y-2 text-center sm:text-left flex-1">
@@ -219,6 +232,7 @@ export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
               illustrationTitle={theme.additionalScriptures[0].illustrationTitle}
               illustrationIcon={theme.additionalScriptures[0].illustrationIcon}
               illustrationDescription={theme.additionalScriptures[0].illustrationDescription}
+              illustrationImage={DEVOTIONAL_IMAGES.quietHarbor.imageUrl}
             />
 
             <div className="p-6 rounded-3xl bg-forest-800 text-cream-50 space-y-4 shadow-lg">
@@ -259,6 +273,7 @@ export const MainDiscussionScreen: React.FC<MainDiscussionScreenProps> = ({
               illustrationTitle={theme.additionalScriptures[1].illustrationTitle}
               illustrationIcon={theme.additionalScriptures[1].illustrationIcon}
               illustrationDescription={theme.additionalScriptures[1].illustrationDescription}
+              illustrationImage={DEVOTIONAL_IMAGES.finishedTapestry.imageUrl}
             />
 
             <div className="p-6 rounded-3xl bg-forest-800 text-cream-50 space-y-4 shadow-lg">

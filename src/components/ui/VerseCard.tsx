@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, ChevronDown, Sparkles } from "lucide-react";
 import { Button } from "./Button";
@@ -13,6 +14,7 @@ interface VerseCardProps {
   illustrationTitle?: string;
   illustrationIcon?: string;
   illustrationDescription?: string;
+  illustrationImage?: string;
 }
 
 export const VerseCard: React.FC<VerseCardProps> = ({
@@ -23,6 +25,7 @@ export const VerseCard: React.FC<VerseCardProps> = ({
   illustrationTitle,
   illustrationIcon,
   illustrationDescription,
+  illustrationImage,
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -51,11 +54,23 @@ export const VerseCard: React.FC<VerseCardProps> = ({
         </div>
       </div>
 
-      {/* Optional Illustration Banner */}
+      {/* Optional Real Illustration Banner */}
       {illustrationTitle && (
-        <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-800/5 border border-emerald-800/10">
-          <span className="text-3xl select-none">{illustrationIcon || "🌾"}</span>
-          <div>
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 rounded-2xl bg-cream-100/80 border border-gold-300/40">
+          {illustrationImage ? (
+            <div className="relative w-full sm:w-28 h-24 rounded-xl overflow-hidden border border-gold-300/60 flex-shrink-0 shadow-sm bg-cream-200">
+              <Image
+                src={illustrationImage}
+                alt={illustrationTitle}
+                fill
+                sizes="(max-width: 640px) 100vw, 112px"
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <span className="text-3xl select-none">{illustrationIcon || "🌾"}</span>
+          )}
+          <div className="flex-1 min-w-0 text-center sm:text-left">
             <h4 className="font-serif font-bold text-base text-forest-900">
               {illustrationTitle}
             </h4>
@@ -109,3 +124,4 @@ export const VerseCard: React.FC<VerseCardProps> = ({
     </div>
   );
 };
+

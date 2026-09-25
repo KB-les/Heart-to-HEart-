@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Check, MessageCircle, Info, Clock, ShieldAlert } from "lucide-react";
 import { Button } from "../ui/Button";
@@ -16,6 +17,7 @@ import {
   AnimalOption,
   NatureOption,
 } from "@/data/icebreaker";
+import { NATURE_REAL_IMAGES, ANIMAL_REAL_IMAGES } from "@/data/imageAssets";
 import { FeelingOption } from "@/data/players";
 import { usePeer } from "@/context/PeerContext";
 
@@ -330,22 +332,36 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {ANIMAL_OPTIONS.map((an) => {
                   const isSelected = current.animal?.id === an.id;
+                  const realImg = ANIMAL_REAL_IMAGES[an.id];
                   return (
                     <motion.button
                       key={an.id}
-                      whileHover={isMyTurn ? { scale: 1.05, y: -2 } : {}}
-                      whileTap={isMyTurn ? { scale: 0.95 } : {}}
+                      whileHover={isMyTurn ? { scale: 1.03, y: -2 } : {}}
+                      whileTap={isMyTurn ? { scale: 0.97 } : {}}
                       type="button"
                       disabled={!isMyTurn}
                       onClick={() => updateCurrentChoice((prev) => ({ ...prev, animal: an }))}
-                      className={`flex flex-col items-center text-center gap-2.5 p-5 rounded-2xl transition-all border-2 ${
+                      className={`group flex flex-col items-center text-center gap-2 p-3.5 rounded-2xl transition-all border-2 overflow-hidden ${
                         isSelected
                           ? "border-forest-800 bg-white shadow-xl ring-4 ring-gold-300"
-                          : "border-transparent bg-white/70 hover:bg-white hover:border-cream-300 shadow-sm"
+                          : "border-cream-200/80 bg-white/80 hover:bg-white hover:border-gold-300 shadow-sm"
                       } ${!isMyTurn ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
-                      <span className="text-5xl">{an.icon}</span>
-                      <p className="text-xs font-bold text-forest-900">{an.name}</p>
+                      {/* Real Wildlife Photo */}
+                      {realImg ? (
+                        <div className="relative w-full h-24 rounded-xl overflow-hidden border border-cream-200 shadow-inner bg-cream-100">
+                          <Image
+                            src={realImg.imageUrl}
+                            alt={realImg.alt}
+                            fill
+                            sizes="(max-width: 640px) 50vw, 200px"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-4xl">{an.icon}</span>
+                      )}
+                      <p className="text-xs font-bold text-forest-900 mt-0.5">{an.name}</p>
                       <p className="text-[10px] text-forest-600 leading-tight">{an.description}</p>
                       {an.scriptureSnippet && (
                         <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-gold-100 text-gold-800 border border-gold-200">
@@ -421,28 +437,37 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {NATURE_OPTIONS.map((nat) => {
                   const isSelected = current.nature?.id === nat.id;
+                  const realImg = NATURE_REAL_IMAGES[nat.id];
                   return (
                     <motion.button
                       key={nat.id}
-                      whileHover={isMyTurn ? { scale: 1.05, y: -2 } : {}}
-                      whileTap={isMyTurn ? { scale: 0.95 } : {}}
+                      whileHover={isMyTurn ? { scale: 1.03, y: -2 } : {}}
+                      whileTap={isMyTurn ? { scale: 0.97 } : {}}
                       type="button"
                       disabled={!isMyTurn}
                       onClick={() => updateCurrentChoice((prev) => ({ ...prev, nature: nat }))}
-                      className={`relative flex flex-col items-center text-center gap-2.5 p-5 rounded-2xl overflow-hidden transition-all border-2 ${
+                      className={`group relative flex flex-col items-center text-center gap-2 p-3.5 rounded-2xl overflow-hidden transition-all border-2 ${
                         isSelected
-                          ? "border-white shadow-xl ring-4 ring-gold-300"
-                          : "border-transparent shadow-sm"
+                          ? "border-forest-800 bg-white shadow-xl ring-4 ring-gold-300"
+                          : "border-cream-200/80 bg-white/80 hover:bg-white hover:border-gold-300 shadow-sm"
                       } ${!isMyTurn ? "opacity-60 cursor-not-allowed" : ""}`}
-                      style={{
-                        background: isSelected
-                          ? nat.bgGradient
-                          : `linear-gradient(135deg, ${nat.bgColor}CC, ${nat.bgColor}99)`,
-                      }}
                     >
-                      <span className="text-5xl drop-shadow-lg">{nat.icon}</span>
-                      <p className="text-sm font-bold text-white drop-shadow">{nat.name}</p>
-                      <p className="text-[10px] text-white/80 leading-tight">{nat.description}</p>
+                      {/* Real Nature Photo */}
+                      {realImg ? (
+                        <div className="relative w-full h-24 rounded-xl overflow-hidden border border-cream-200 shadow-inner bg-cream-100">
+                          <Image
+                            src={realImg.imageUrl}
+                            alt={realImg.alt}
+                            fill
+                            sizes="(max-width: 640px) 50vw, 200px"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-4xl">{nat.icon}</span>
+                      )}
+                      <p className="text-xs font-bold text-forest-900 mt-0.5">{nat.name}</p>
+                      <p className="text-[10px] text-forest-600 leading-tight">{nat.description}</p>
                     </motion.button>
                   );
                 })}
@@ -671,17 +696,39 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     {[
                       { name: player1Name, icon: "🌿", choice: p1 },
                       { name: player2Name, icon: "🌸", choice: p2 },
-                    ].map(({ name, icon, choice }) => (
-                      <div key={name} className="p-4 rounded-2xl bg-white border border-cream-200 space-y-2">
-                        <p className="text-xs font-bold text-forest-900 flex items-center gap-2">
-                          <span className="text-2xl">{choice.animal?.icon}</span>
-                          {icon} {name} — {choice.animal?.name}
-                        </p>
-                        <p className="text-xs text-forest-700 leading-relaxed">
-                          {choice.animal?.reflection}
-                        </p>
-                      </div>
-                    ))}
+                    ].map(({ name, icon, choice }) => {
+                      const animalImg = choice.animal ? ANIMAL_REAL_IMAGES[choice.animal.id] : null;
+                      return (
+                        <div key={name} className="p-4 rounded-2xl bg-white border border-cream-200 space-y-2">
+                          <div className="flex items-center gap-3">
+                            {animalImg ? (
+                              <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-cream-200 flex-shrink-0">
+                                <Image
+                                  src={animalImg.imageUrl}
+                                  alt={animalImg.alt}
+                                  fill
+                                  sizes="48px"
+                                  className="object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-2xl">{choice.animal?.icon}</span>
+                            )}
+                            <div>
+                              <p className="text-xs font-bold text-forest-900">
+                                {icon} {name}
+                              </p>
+                              <p className="text-xs font-medium text-gold-700">
+                                {choice.animal?.name}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-forest-700 leading-relaxed pt-1">
+                            {choice.animal?.reflection}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <ReflectionQuestions questions={[
@@ -705,17 +752,39 @@ export const IcebreakerScreen: React.FC<IcebreakerScreenProps> = ({
                     {[
                       { name: player1Name, icon: "🌿", choice: p1 },
                       { name: player2Name, icon: "🌸", choice: p2 },
-                    ].map(({ name, icon, choice }) => (
-                      <div key={name} className="p-4 rounded-2xl bg-white border border-cream-200 space-y-2">
-                        <p className="text-xs font-bold text-forest-900 flex items-center gap-2">
-                          <span className="text-2xl">{choice.nature?.icon}</span>
-                          {icon} {name} — {choice.nature?.name}
-                        </p>
-                        <p className="text-xs text-forest-700 leading-relaxed">
-                          {choice.nature?.reflection}
-                        </p>
-                      </div>
-                    ))}
+                    ].map(({ name, icon, choice }) => {
+                      const natureImg = choice.nature ? NATURE_REAL_IMAGES[choice.nature.id] : null;
+                      return (
+                        <div key={name} className="p-4 rounded-2xl bg-white border border-cream-200 space-y-2">
+                          <div className="flex items-center gap-3">
+                            {natureImg ? (
+                              <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-cream-200 flex-shrink-0">
+                                <Image
+                                  src={natureImg.imageUrl}
+                                  alt={natureImg.alt}
+                                  fill
+                                  sizes="48px"
+                                  className="object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-2xl">{choice.nature?.icon}</span>
+                            )}
+                            <div>
+                              <p className="text-xs font-bold text-forest-900">
+                                {icon} {name}
+                              </p>
+                              <p className="text-xs font-medium text-forest-700">
+                                {choice.nature?.name}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-forest-700 leading-relaxed pt-1">
+                            {choice.nature?.reflection}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <ReflectionQuestions questions={[

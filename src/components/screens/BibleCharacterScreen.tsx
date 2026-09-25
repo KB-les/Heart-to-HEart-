@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -19,6 +20,7 @@ import { ClueCard } from "../ui/ClueCard";
 import { TimelineMilestone } from "../ui/TimelineMilestone";
 import { DiscussionQuestionsList } from "../ui/DiscussionQuestionsList";
 import { BIBLE_CHARACTERS, BibleCharacter } from "@/data/bibleCharacters";
+import { BIBLE_CHARACTER_IMAGES } from "@/data/imageAssets";
 import { useSound } from "@/context/SoundContext";
 
 import { usePeer } from "@/context/PeerContext";
@@ -183,16 +185,31 @@ export const BibleCharacterScreen: React.FC<BibleCharacterScreenProps> = ({
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="pt-6 border-t-2 border-gold-400 space-y-8"
           >
-            {/* Celebration Card */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-gold-100 via-amber-50 to-emerald-50 border-2 border-gold-400 shadow-glow text-center space-y-3 relative overflow-hidden">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: [0, 1.2, 1] }}
-                transition={{ duration: 0.6 }}
-                className="text-6xl sm:text-7xl select-none"
-              >
-                {currentCharacter.avatar}
-              </motion.div>
+            {/* Classical Artwork / Photographic Celebration Card */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-gold-100 via-amber-50 to-emerald-50 border-2 border-gold-400 shadow-glow text-center space-y-4 relative overflow-hidden">
+              {/* Fine Art Photographic Framing */}
+              {BIBLE_CHARACTER_IMAGES[currentCharacter.id] && (
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.6 }}
+                  className="relative w-full max-w-sm h-52 sm:h-60 mx-auto rounded-2xl overflow-hidden border-2 border-gold-400/80 shadow-md bg-stone-900"
+                >
+                  <Image
+                    src={BIBLE_CHARACTER_IMAGES[currentCharacter.id].imageUrl}
+                    alt={BIBLE_CHARACTER_IMAGES[currentCharacter.id].portraitAlt}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 384px"
+                    className="object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950/80 via-transparent to-black/20" />
+                  <div className="absolute bottom-2 left-3 right-3 text-left">
+                    <p className="text-[11px] text-cream-100 italic leading-snug drop-shadow">
+                      {BIBLE_CHARACTER_IMAGES[currentCharacter.id].artistNote}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
 
               <div className="space-y-1">
                 <span className="text-xs font-bold uppercase tracking-wider text-gold-700">

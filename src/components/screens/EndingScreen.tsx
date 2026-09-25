@@ -1,10 +1,12 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, Heart, CheckCircle2, RotateCcw } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
+import { DEVOTIONAL_IMAGES } from "@/data/imageAssets";
 
 interface EndingScreenProps {
   player1Name: string;
@@ -21,60 +23,40 @@ export const EndingScreen: React.FC<EndingScreenProps> = ({
 }) => {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-8 text-center relative overflow-hidden">
-      {/* Soft Sunset Ambient Glow */}
-      <motion.div
-        animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.5, 0.7, 0.5],
-        }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-gradient-to-b from-amber-300/40 via-rose-300/30 to-transparent blur-3xl pointer-events-none"
-      />
-
-      {/* Growing Tree Animation Container */}
-      <div className="relative flex flex-col items-center justify-center py-6">
+      {/* Real Flourishing Olive Tree Visual */}
+      <div className="relative flex flex-col items-center justify-center py-4">
         <motion.div
-          initial={{ scale: 0.2, opacity: 0, y: 40 }}
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-          className="relative text-7xl sm:text-8xl select-none"
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full max-w-md h-52 sm:h-64 rounded-3xl overflow-hidden border-2 border-gold-300 shadow-card bg-cream-100"
         >
-          {/* Framer Motion Growing Tree Sequence */}
-          <motion.span
-            animate={{
-              scale: [0.95, 1.05, 0.95],
-              rotate: [-2, 2, -2],
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="inline-block drop-shadow-xl"
-          >
-            🌳
-          </motion.span>
+          <Image
+            src={DEVOTIONAL_IMAGES.flourishingTree.imageUrl}
+            alt={DEVOTIONAL_IMAGES.flourishingTree.alt}
+            fill
+            sizes="(max-width: 640px) 100vw, 448px"
+            className="object-cover object-center transform scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-forest-950/70 via-transparent to-transparent" />
 
-          {/* Floating glowing sparkles around tree */}
-          <motion.div
-            animate={{ opacity: [0.2, 1, 0.2], y: [-10, 10, -10] }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="absolute -top-4 -right-4 text-2xl"
-          >
-            ✨
-          </motion.div>
-          <motion.div
-            animate={{ opacity: [0.2, 1, 0.2], y: [10, -10, 10] }}
-            transition={{ duration: 4, repeat: Infinity, delay: 1 }}
-            className="absolute -bottom-2 -left-4 text-2xl"
-          >
-            🌸
-          </motion.div>
+          {/* Gentle Floating Scripture Banner */}
+          <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-cream-50 text-xs drop-shadow">
+            <span className="font-serif italic font-medium flex items-center gap-1.5 text-gold-200">
+              <Sparkles className="w-3.5 h-3.5 text-gold-300" />
+              &ldquo;Like a tree planted by streams of water...&rdquo;
+            </span>
+            <span className="text-[10px] text-cream-200 font-sans uppercase tracking-wider">Psalm 1:3</span>
+          </div>
         </motion.div>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="text-xs font-semibold text-forest-700 uppercase tracking-widest mt-2"
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="text-xs font-semibold text-forest-700 uppercase tracking-widest mt-3"
         >
-          Spiritual Growth & Unity
+          Spiritual Growth &amp; Unity in Jehovah
         </motion.p>
       </div>
 
