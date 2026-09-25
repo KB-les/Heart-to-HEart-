@@ -1,22 +1,21 @@
 export interface Player {
   name: string;
-  avatar: string; // Emoji / icon
+  avatar: string;
   favoriteColor?: string;
   colorFeelings?: string[];
   favoriteAnimal?: string;
   animalFeelings?: string[];
-  favoriteNature?: string;
   natureFeelings?: string[];
 }
 
 export const DEFAULT_PLAYER_1: Player = {
-  name: "Karabelo",
-  avatar: "🌿",
+  name: "Partner 1",
+  avatar: "1",
 };
 
 export const DEFAULT_PLAYER_2: Player = {
-  name: "Yolanda",
-  avatar: "🌸",
+  name: "Partner 2",
+  avatar: "2",
 };
 
 export const FEELING_OPTIONS = [

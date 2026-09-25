@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Volume2, VolumeX, Heart } from "lucide-react";
 import { useSound } from "@/context/SoundContext";
 import { ProgressTree } from "./ProgressTree";
+import { usePeer } from "@/context/PeerContext";
 
 interface JourneyHeaderProps {
   currentStep: number;
@@ -12,8 +13,6 @@ interface JourneyHeaderProps {
   player2Name: string;
   onSelectStep?: (step: number) => void;
 }
-
-import { usePeer } from "@/context/PeerContext";
 
 export const JourneyHeader: React.FC<JourneyHeaderProps> = ({
   currentStep,
@@ -70,13 +69,13 @@ export const JourneyHeader: React.FC<JourneyHeaderProps> = ({
 
         {/* Right Section: Players & Sound Toggle */}
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-forest-800/5 border border-forest-800/10 text-xs font-semibold text-forest-800">
-            <span>🌿 {player1Name || "Karabelo"}</span>
-            <span className="text-gold-500 font-bold">&</span>
-            <span>🌸 {player2Name || "Yolanda"}</span>
+          <div className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/80 border border-cream-300 text-xs font-semibold text-forest-900 shadow-sm">
+            <span>{player1Name || "Partner 1"}</span>
+            <span className="text-gold-600 font-bold">&amp;</span>
+            <span>{player2Name || "Partner 2"}</span>
             {isRemote && (
-              <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gold-200 text-forest-900 border border-gold-300">
-                {myRole === "host" ? "👑 Host" : "👀 Guest"}
+              <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-forest-800 text-gold-300">
+                {myRole === "host" ? "Host" : "Guest"}
               </span>
             )}
           </div>

@@ -77,7 +77,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
           transition={{ delay: 0.4, duration: 0.6 }}
           className="text-sm sm:text-base text-forest-800/80 max-w-md mx-auto leading-relaxed"
         >
-          A peaceful, joyful interactive space for Karabelo and Yolanda to enjoy meaningful Bible discussions and fun together.
+        A peaceful, joyful interactive space for two people to enjoy meaningful Bible discussions and fun together.
         </motion.p>
 
         {/* Start Button */}
@@ -95,9 +95,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
       </Card>
 
       {/* Footer */}
-      <footer className="mt-10 text-xs text-forest-700/60 font-medium flex items-center gap-1">
-        <span>Built with love for family worship</span>
-        <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500 inline" />
+      <footer className="mt-10 text-xs text-forest-700/60 font-medium">
+        <span>Designed for meaningful family worship</span>
       </footer>
     </div>
   );

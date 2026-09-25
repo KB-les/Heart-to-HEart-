@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, ArrowRight, Wifi, Copy, Check, Smartphone, Globe, AlertCircle, Shield } from "lucide-react";
+import { Users, ArrowRight, Wifi, Copy, Check, Smartphone, Globe, AlertCircle, Shield, User } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { usePeer } from "@/context/PeerContext";
@@ -95,8 +95,8 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
   // Host automatically sends name handshake as soon as partner connects
   useEffect(() => {
     if (peerStatus === "connected" && myRole === "host") {
-      const name1 = p1.trim() || "Karabelo";
-      const name2 = p2.trim() || "Dudu";
+      const name1 = p1.trim() || "Partner 1";
+      const name2 = p2.trim() || "Partner 2";
       broadcast({
         type: "SYNC_PLAYERS",
         payload: { p1: name1, p2: name2 },
@@ -124,8 +124,8 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
     if (!isHost) return;
     if (!isRemoteReady) return;
 
-    const finalP1 = p1.trim() || "Karabelo";
-    const finalP2 = p2.trim() || "Dudu";
+    const finalP1 = p1.trim() || "Partner 1";
+    const finalP2 = p2.trim() || "Partner 2";
 
     onUpdatePlayers(finalP1, finalP2);
     if (isRemote) {
@@ -139,8 +139,8 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined" && roomCode) {
-      const p1Name = encodeURIComponent(p1.trim() || "Karabelo");
-      const p2Name = encodeURIComponent(p2.trim() || "Dudu");
+      const p1Name = encodeURIComponent(p1.trim() || "Partner 1");
+      const p2Name = encodeURIComponent(p2.trim() || "Partner 2");
       const shareUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}&p1=${p1Name}&p2=${p2Name}`;
       navigator.clipboard.writeText(shareUrl);
       setCopied(true);
@@ -315,8 +315,8 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-forest-800 text-2xl flex items-center justify-center shadow-md border border-gold-300">
-              {avatar1}
+            <div className="w-12 h-12 rounded-2xl bg-forest-800 text-gold-300 flex items-center justify-center shadow-md border border-gold-300/40">
+              <User className="w-6 h-6 stroke-[2]" />
             </div>
 
             <input
@@ -324,7 +324,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
               disabled={!isHost}
               value={p1}
               onChange={(e) => handleP1Change(e.target.value)}
-              placeholder="e.g. Karabelo"
+              placeholder="Enter Player 1 Name"
               className={`flex-1 px-4 py-3 rounded-2xl bg-white border border-cream-300 text-forest-900 font-medium focus:outline-none focus:ring-2 focus:ring-forest-700/50 shadow-inner text-base ${
                 !isHost ? "opacity-75 cursor-not-allowed bg-cream-100/50" : ""
               }`}
@@ -345,8 +345,8 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-forest-800 text-2xl flex items-center justify-center shadow-md border border-gold-300">
-              {avatar2}
+            <div className="w-12 h-12 rounded-2xl bg-forest-800 text-gold-300 flex items-center justify-center shadow-md border border-gold-300/40">
+              <User className="w-6 h-6 stroke-[2]" />
             </div>
 
             <input
@@ -354,7 +354,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
               disabled={!isHost}
               value={p2}
               onChange={(e) => handleP2Change(e.target.value)}
-              placeholder="e.g. Dudu"
+              placeholder="Enter Player 2 Name"
               className={`flex-1 px-4 py-3 rounded-2xl bg-white border border-cream-300 text-forest-900 font-medium focus:outline-none focus:ring-2 focus:ring-forest-700/50 shadow-inner text-base ${
                 !isHost ? "opacity-75 cursor-not-allowed bg-cream-100/50" : ""
               }`}

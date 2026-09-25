@@ -78,7 +78,7 @@ Do not grumble against one another, brothers, so that you may not be judged. Loo
     {
       id: "weekly-imitation",
       question: "What quality from today's discussion would you like to imitate this week?",
-      subtext: "Personal application for Karabelo & Yolanda.",
+      subtext: "Personal application for both of you.",
       scriptureAnchor: "James 5:10",
       reflectionPrompt: "Share one practical area this week (in our relationship, work, or congregation) where we can show extra patience.",
     },

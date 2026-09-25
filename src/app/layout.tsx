@@ -7,7 +7,7 @@ import { BackgroundParticles } from "@/components/ui/BackgroundParticles";
 export const metadata: Metadata = {
   title: "Heart to Heart - Growing closer to Jehovah together",
   description:
-    "A peaceful interactive family worship application designed for Karabelo and Yolanda to enjoy meaningful Bible discussions together.",
+    "A peaceful interactive family worship application designed for two people to enjoy meaningful Bible discussions together.",
 };
 
 export default function RootLayout({
