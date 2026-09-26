@@ -16,57 +16,68 @@ export interface ScenicImageAsset {
   caption?: string;
 }
 
-// ─── Authentic Bible Character Cards (Local Static Assets) ─────────────────
+// ─── Authentic Bible Character Cards (Verified Unsplash Scene Photography) ──
+// Each image is a real, thematic scene matching the character's biblical story.
 export const BIBLE_CHARACTER_IMAGES: Record<string, CharacterImageAsset> = {
   joseph: {
-    imageUrl: "/images/characters/joseph.jpg",
-    portraitAlt: "Illustrated Bible character portrait of Joseph in Egypt",
+    // Ancient Egyptian desert landscape – Joseph's years in Egypt
+    imageUrl: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Ancient Egyptian desert landscape at golden hour",
     artistNote: "Illustrating Joseph's faith and integrity, rising from an Egyptian prison to become governor under Jehovah's blessing.",
   },
   david: {
-    imageUrl: "/images/characters/david.jpg",
-    portraitAlt: "Illustrated Bible character portrait of David with the harp",
-    artistNote: "Depicting David in his youth with his musical harp, composing heartfelt songs of devotion and trust in Jehovah.",
+    // Green pastoral hillside – David the shepherd boy
+    imageUrl: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Rolling green hills under a warm golden sky",
+    artistNote: "Depicting David in his youth as a faithful shepherd, composing heartfelt songs of devotion and trust in Jehovah.",
   },
   abraham: {
-    imageUrl: "/images/characters/abraham.jpg",
-    portraitAlt: "Illustrated Bible character portrait of Abraham",
-    artistNote: "Portraying Abraham, the 'father of all those having faith', who trusted Jehovah's promise regarding his offspring.",
+    // Brilliant star-filled night sky – God's promise of descendants like the stars
+    imageUrl: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Vast celestial night sky filled with millions of stars over mountains",
+    artistNote: "Portraying Abraham, the 'father of all those having faith', who trusted Jehovah's promise that his offspring would be as the stars.",
   },
   ruth: {
-    imageUrl: "/images/characters/ruth.jpg",
-    portraitAlt: "Illustrated Bible character portrait of Ruth in the harvest fields",
-    artistNote: "Showing Ruth displaying loyal love for Naomi and unshakeable devotion to Jehovah in the fields of Bethlehem.",
+    // Golden wheat harvest field – Ruth gleaning in the fields of Bethlehem
+    imageUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Vast golden wheat field glowing under warm afternoon sunlight",
+    artistNote: "Showing Ruth displaying loyal love for Naomi and unshakeable devotion to Jehovah in the harvest fields of Bethlehem.",
   },
   esther: {
-    imageUrl: "/images/characters/esther.jpg",
-    portraitAlt: "Illustrated Bible character portrait of Queen Esther",
+    // Lush ornate garden with warm golden light – the Persian palace gardens
+    imageUrl: "https://images.unsplash.com/photo-1444930694458-01babf71abda?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Elegant blooming garden with golden light filtering through ancient trees",
     artistNote: "Capturing Queen Esther's poised courage and deep faith as she stood up to deliver Jehovah's people.",
   },
   moses: {
-    imageUrl: "/images/characters/moses.jpg",
-    portraitAlt: "Illustrated Bible character portrait of Moses",
+    // Dramatic rocky mountain summit – Mount Sinai where Moses received the Law
+    imageUrl: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Majestic rocky mountain peaks rising into a dramatic sky",
     artistNote: "Representing Moses, the meekest of men, who faithfully led Israel and received Jehovah's sacred Law at Mount Sinai.",
   },
   daniel: {
-    imageUrl: "/images/characters/daniel.jpg",
-    portraitAlt: "Illustrated Bible character portrait of Daniel",
+    // Ancient stone architecture at dusk – Babylon's towers and temples
+    imageUrl: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Ancient stone columns and archways bathed in warm amber light",
     artistNote: "Depicting the prophet Daniel, renowned for his uncompromised integrity and continuous prayer to Jehovah in Babylon.",
   },
   samuel: {
-    imageUrl: "/images/characters/samuel.jpg",
-    portraitAlt: "Illustrated Bible character portrait of the young boy Samuel",
+    // Candle flame in darkness – young Samuel hearing God's voice in the night
+    imageUrl: "https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Single glowing candle flame casting warm light in peaceful darkness",
     artistNote: "Showing young Samuel in the tabernacle sanctuary answering reverently: 'Speak, for your servant is listening.'",
   },
   peter: {
-    imageUrl: "/images/characters/peter.jpg",
-    portraitAlt: "Illustrated Bible character portrait of the Apostle Peter",
+    // Fishing boats on calm morning sea of Galilee
+    imageUrl: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Weathered wooden fishing boats resting on a calm morning sea",
     artistNote: "Portraying the Apostle Peter, zealous and warm-hearted fisher of men devoted to Christ Jesus.",
   },
   paul: {
-    imageUrl: "/images/characters/paul.jpg",
-    portraitAlt: "Illustrated Bible character portrait of the Apostle Paul",
-    artistNote: "Reflecting the Apostle Paul writing inspired letters of faith, endurance, and love to early Christian congregations.",
+    // Ancient road through rocky wilderness – Paul's missionary journeys
+    imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80",
+    portraitAlt: "Ancient stone road winding through rocky wilderness landscape",
+    artistNote: "Reflecting the Apostle Paul's tireless journeys and inspired letters of faith, endurance, and love to early Christian congregations.",
   },
 };
 
