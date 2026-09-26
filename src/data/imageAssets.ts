@@ -1,6 +1,7 @@
 /**
- * Verified high-resolution fine-art and evocative historical photography assets.
- * All URLs are verified HTTP 200 OK CDN endpoints that load reliably across all devices.
+ * Verified high-resolution Bible character cards and thematic devotional assets.
+ * Character artwork and core thematic imagery are served directly as optimized local static assets
+ * from /public/images/ for 100% reliable, instant loading with zero external CDN dependencies.
  */
 
 export interface CharacterImageAsset {
@@ -15,57 +16,57 @@ export interface ScenicImageAsset {
   caption?: string;
 }
 
-// ─── Verified Classical & Evocative Historical Art for Bible Characters ────
+// ─── Authentic Bible Character Cards (Local Static Assets) ─────────────────
 export const BIBLE_CHARACTER_IMAGES: Record<string, CharacterImageAsset> = {
   joseph: {
-    imageUrl: "https://images.unsplash.com/photo-1582560475093-ba66accbc424?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Venerable ancient Egyptian architecture and golden dawn sands",
-    artistNote: "Symbolizing Joseph's journey from humble shepherd son to royal governor of Egypt under Jehovah's guiding hand.",
+    imageUrl: "/images/characters/joseph.jpg",
+    portraitAlt: "Illustrated Bible character portrait of Joseph in Egypt",
+    artistNote: "Illustrating Joseph's faith and integrity, rising from an Egyptian prison to become governor under Jehovah's blessing.",
   },
   david: {
-    imageUrl: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Classical masterwork painting of King David in prayer",
-    artistNote: "Classical fine-art capturing King David in quiet devotion, composing heartfelt psalms of praise to Jehovah.",
+    imageUrl: "/images/characters/david.jpg",
+    portraitAlt: "Illustrated Bible character portrait of David with the harp",
+    artistNote: "Depicting David in his youth with his musical harp, composing heartfelt songs of devotion and trust in Jehovah.",
   },
   abraham: {
-    imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Vast expanse of countless brilliant stars shining over quiet desert hills",
-    artistNote: "Echoing Jehovah's tender promise to Abraham: 'Look up, please, to the heavens and count the stars... So your offspring will become.'",
+    imageUrl: "/images/characters/abraham.jpg",
+    portraitAlt: "Illustrated Bible character portrait of Abraham",
+    artistNote: "Portraying Abraham, the 'father of all those having faith', who trusted Jehovah's promise regarding his offspring.",
   },
   ruth: {
-    imageUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Sunlit golden sheaves of ripe barley and wheat during harvest",
-    artistNote: "Depicting Ruth gleaning faithfully in the fields of Boaz with loyal love for Naomi and devotion to Jehovah.",
+    imageUrl: "/images/characters/ruth.jpg",
+    portraitAlt: "Illustrated Bible character portrait of Ruth in the harvest fields",
+    artistNote: "Showing Ruth displaying loyal love for Naomi and unshakeable devotion to Jehovah in the fields of Bethlehem.",
   },
   esther: {
-    imageUrl: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Classical fine-art royal portrait of Queen Esther",
-    artistNote: "Reflecting Queen Esther's fearless faith and dignity when risking her life before King Ahasuerus for Jehovah's people.",
+    imageUrl: "/images/characters/esther.jpg",
+    portraitAlt: "Illustrated Bible character portrait of Queen Esther",
+    artistNote: "Capturing Queen Esther's poised courage and deep faith as she stood up to deliver Jehovah's people.",
   },
   moses: {
-    imageUrl: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Sacred stone inscription and ancient script of the Law",
-    artistNote: "Evoking Moses speaking with Jehovah on Mount Sinai and bringing down the sacred Law with deep meekness.",
+    imageUrl: "/images/characters/moses.jpg",
+    portraitAlt: "Illustrated Bible character portrait of Moses",
+    artistNote: "Representing Moses, the meekest of men, who faithfully led Israel and received Jehovah's sacred Law at Mount Sinai.",
   },
   daniel: {
-    imageUrl: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Ancient Eastern colonnade and quiet dawn sky",
-    artistNote: "Showing Daniel praying three times a day toward Jerusalem with unyielding integrity in Babylon.",
+    imageUrl: "/images/characters/daniel.jpg",
+    portraitAlt: "Illustrated Bible character portrait of Daniel",
+    artistNote: "Depicting the prophet Daniel, renowned for his uncompromised integrity and continuous prayer to Jehovah in Babylon.",
   },
   samuel: {
-    imageUrl: "https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Warm sanctuary light illuminating sacred stone walls",
-    artistNote: "Capturing the young boy Samuel answering reverently in the tabernacle: 'Speak, for your servant is listening.'",
+    imageUrl: "/images/characters/samuel.jpg",
+    portraitAlt: "Illustrated Bible character portrait of the young boy Samuel",
+    artistNote: "Showing young Samuel in the tabernacle sanctuary answering reverently: 'Speak, for your servant is listening.'",
   },
   peter: {
-    imageUrl: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Peaceful waters of the Sea of Galilee at dawn",
-    artistNote: "Commemorating Peter leaving his nets behind on the Galilean shore to become a zealous fisher of men for Christ.",
+    imageUrl: "/images/characters/peter.jpg",
+    portraitAlt: "Illustrated Bible character portrait of the Apostle Peter",
+    artistNote: "Portraying the Apostle Peter, zealous and warm-hearted fisher of men devoted to Christ Jesus.",
   },
   paul: {
-    imageUrl: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80",
-    portraitAlt: "Handwritten ancient parchment, quill, and warm oil lamp",
-    artistNote: "Reflecting the Apostle Paul penning inspired words of faith, love, and endurance to Christian congregations.",
+    imageUrl: "/images/characters/paul.jpg",
+    portraitAlt: "Illustrated Bible character portrait of the Apostle Paul",
+    artistNote: "Reflecting the Apostle Paul writing inspired letters of faith, endurance, and love to early Christian congregations.",
   },
 };
 
@@ -84,8 +85,8 @@ export const NATURE_REAL_IMAGES: Record<string, ScenicImageAsset> = {
     alt: "Rhythmic turquoise waves rolling peacefully onto a pristine sunlit beach",
   },
   garden: {
-    imageUrl: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=800&q=80",
-    alt: "Vibrant blooming botanical garden flowers glowing with life",
+    imageUrl: "/images/thematic/garden.jpg",
+    alt: "Lush blooming garden with vibrant plants and flowers",
   },
   stars: {
     imageUrl: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=800&q=80",
@@ -144,8 +145,8 @@ export const DEVOTIONAL_IMAGES = {
     alt: "Breathtaking golden morning sunrise bursting through tranquil hills",
   },
   farmerPatience: {
-    imageUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
-    alt: "Golden wheat field in warm late-afternoon sunlight waiting for rain",
+    imageUrl: "/images/thematic/patience.jpg",
+    alt: "Patience illustration showing diligent farmer waiting for harvest",
     caption: "The farmer trusts the early and late rain, knowing Jehovah rewards patient endurance.",
   },
   quietHarbor: {
